@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useContext } from "react"
@@ -38,7 +36,7 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>Business Management System</h1>
+        <h1>Worker Dashboard</h1>
         <h2>Login</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
