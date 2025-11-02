@@ -24,7 +24,7 @@ const prisma = new PrismaClient();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:5174"], // your frontend URL
+    origin: ["http://localhost:5173","http://localhost:5174","https://system-blond.vercel.app/login"], // your frontend URL
     credentials: true,               // allow cookies if needed
   })
 )
