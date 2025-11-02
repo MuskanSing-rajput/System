@@ -1,0 +1,222 @@
+.overview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Added quick action buttons section */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  color: white;
+}
+
+.add-item-btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+}
+
+.add-item-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.4);
+}
+
+.add-amount-btn {
+  background: linear-gradient(135deg, #e66c4d 0%, #be395a 100%);
+}
+
+.add-amount-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(212, 42, 8, 0.4);
+}
+
+.add-purchase-btn {
+  background: linear-gradient(135deg, #cb509c 0%, #f5576c 100%);
+}
+
+.add-purchase-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(245, 87, 108, 0.4);
+}
+
+.add-sale-btn {
+  background: linear-gradient(135deg, #d666ea 0%, #840d7a 100%);
+}
+
+.add-sale-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(79, 172, 254, 0.4);
+}
+
+.add-expenses-btn {
+  background: linear-gradient(135deg, #f2b543 0%, #b55a0f 100%);
+}
+
+.add-expenses-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(245, 87, 108, 0.4);
+}
+
+.btn-icon {
+  font-size: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #eee;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.stat-card.clickable {
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.stat-card.clickable:hover {
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.2);
+  border-color: #0ea5e9;
+}
+
+/* Updated stat card styling with better hierarchy */
+.stat-card.sales {
+  border-left: 4px solid #4facfe;
+}
+
+.stat-card.purchases {
+  border-left: 4px solid #f5576c;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stat-header h3 {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  font-weight: 600;
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+.refresh-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .quick-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .overview-container {
+    gap: 16px;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn {
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .btn-icon {
+    font-size: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .stat-header h3 {
+    font-size: 13px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,148 @@
+.workers-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.workers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.workers-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0;
+}
+
+.worker-form {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.workers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.worker-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.worker-info h3 {
+  margin: 0 0 15px 0;
+  color: #667eea;
+  font-size: 18px;
+}
+
+.worker-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.worker-info .active {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.worker-info .inactive {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.worker-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-primary,
+.btn-edit,
+.btn-delete {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  background: #5568d3;
+}
+
+.worker-form .btn-primary {
+  grid-column: 1 / -1;
+  max-width: 200px;
+  justify-self: start;
+}
+
+.btn-edit {
+  background: #4caf50;
+  color: white;
+  flex: 1;
+}
+
+.btn-edit:hover {
+  background: #45a049;
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+  flex: 1;
+}
+
+.btn-delete:hover {
+  background: #da190b;
+}
+
+@media (max-width: 768px) {
+  .workers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .worker-form {
+    grid-template-columns: 1fr;
+  }
+}
