@@ -167,8 +167,15 @@ export const getPurchases = async (req, res) => {
       where.userId = req.userId;
     }
 
-    if (startDate && endDate) {
-      where.purchaseDate = { gte: new Date(startDate), lte: new Date(endDate) };
+   if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); 
+
+      where.purchaseDate = {
+        gte: start,
+        lte: end,
+      };
     }
 
     const skip = (Number(page) - 1) * Number(limit);
