@@ -28,7 +28,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "https://system-blond.vercel.app",
-      "system-lhmp.vercel.app",
+      "https://system-lhmp.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
