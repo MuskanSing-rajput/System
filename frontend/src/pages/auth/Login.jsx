@@ -1,13 +1,12 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useContext } from "react"
+import { useState, useContext } from "react"
+import { useNavigate, Link } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
 import { AuthContext } from "../../context/AuthContext"
 import api from "../../utils/api"
 import "./Auth.css"
 
 export default function Login() {
-  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -21,13 +20,19 @@ export default function Login() {
     setError("")
 
     try {
-      const response = await api.post("/auth/login", { email, password })
-      const data = response.data
+      const { data } = await api.post("/auth/login", { name, password })
+
+      if (!data?.token || !data?.user) {
+        setError("Invalid credentials")
+        return
+      }
 
       login(data.token, data.user)
       navigate(data.user.role === "admin" ? "/admin-dashboard" : "/worker-dashboard")
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed. Please try again.")
+      const message = err.response?.data?.error || "Login failed. Please try again."
+      setError(message)
+      console.log("Error message:", message)
     } finally {
       setLoading(false)
     }
@@ -39,31 +44,40 @@ export default function Login() {
         <h1>Worker Dashboard</h1>
         <h2>Login</h2>
         {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <div className="password-field-wrapper">
+
+        <form onSubmit={handleSubmit} noValidate>
           <input
-              type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="text"
+            placeholder="Worker Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
+
+          <div className="password-field-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
             <button
               type="button"
               className="password-toggle"
               onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+
           <button type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
         <p>
-          Don't have an account? <a href="/register">Register here</a>
+          Don't have an account? <Link to="/register">Register here</Link>
         </p>
       </div>
     </div>

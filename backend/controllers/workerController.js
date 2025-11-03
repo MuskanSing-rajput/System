@@ -50,7 +50,6 @@ export const getAllWorkers = async (req, res) => {
           id: `virtual-${workerUser.id}`,
           userId: workerUser.id,
           name: workerUser.name,
-          email: workerUser.email,
           phone: "",
           position: "Worker",
           salary: 0,
@@ -107,60 +106,55 @@ export const getWorkerById = async (req, res) => {
 export const addWorker = async (req, res) => {
   try {
     const adminUserId = req.userId
-    const { name, email, phone, position, salary, joinDate, shopId, password } = req.body
+    const { name, phone, position, salary, joinDate, shopId, password } = req.body
 
     const adminUser = await prisma.user.findUnique({ where: { id: adminUserId } })
     if (!adminUser || adminUser.role !== "admin") {
       return res.status(403).json({ error: "Unauthorized" })
     }
 
-    const existingWorker = await prisma.worker.findUnique({
-      where: { email },
-    })
+    // ✅ Convert name to lowercase before any database operation
+    const lowerCaseName = name.toLowerCase()
 
+    // ✅ Check unique by lowercase worker name
+    const existingWorker = await prisma.worker.findUnique({
+      where: { name: lowerCaseName },
+    })
     if (existingWorker) {
-      return res.status(400).json({ error: "Worker email already exists" })
+      return res.status(400).json({ error: "Worker name already exists" })
     }
 
-    // Check if user exists, if not create one
-    let workerUser = await prisma.user.findUnique({ where: { email } })
-    
+    // ✅ Check if user with same name exists
+    let workerUser = await prisma.user.findUnique({ where: { name: lowerCaseName } })
+
     if (!workerUser) {
-      // Create user for worker with default password
       const hashedPassword = await bcrypt.hash(password || "worker123", 10)
       workerUser = await prisma.user.create({
         data: {
-          email,
+          name: lowerCaseName,
           password: hashedPassword,
-          name,
           role: "worker",
           shopId: shopId || "shop1",
         },
       })
-    } else {
-      // Update existing user's shopId if provided
-      if (shopId) {
-        await prisma.user.update({
-          where: { id: workerUser.id },
-          data: { shopId },
-        })
-      }
+    } else if (shopId) {
+      await prisma.user.update({
+        where: { id: workerUser.id },
+        data: { shopId },
+      })
     }
 
     const worker = await prisma.worker.create({
       data: {
         userId: workerUser.id,
-        name,
-        email,
+        name: lowerCaseName,
         phone,
         position,
         salary: Number.parseFloat(salary),
         joinDate: new Date(joinDate),
       },
       include: {
-        user: {
-          select: { shopId: true, name: true },
-        },
+        user: { select: { shopId: true, name: true } },
       },
     })
 
@@ -216,7 +210,6 @@ export const updateWorker = async (req, res) => {
           data: {
             userId: userWorkerId,
             name,
-            email: workerUser.email,
             phone: phone || "",
             position: position || "Worker",
             salary: Number.parseFloat(salary) || 0,

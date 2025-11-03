@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import ViewInventory from "./inventory/ViewInventory"
 import ViewPurchases from "./inventory/ViewPurchases"
@@ -7,7 +5,7 @@ import ViewSales from "./inventory/ViewSales"
 import "./InventoryTabs.css"
 
 export default function InventoryTabs() {
-  const [activeTab, setActiveTab] = useState("inventory")
+  const [activeTab, setActiveTab] = useState("purchases")
 
   return (
     <div className="inventory-tabs">

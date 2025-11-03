@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
@@ -9,7 +7,6 @@ import "./Auth.css"
 export default function Register() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     password: "",
     confirmPassword: "",
     role: "worker",
@@ -21,9 +18,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -39,30 +34,17 @@ export default function Register() {
     try {
       await api.post("/auth/register", {
         name: formData.name,
-        email: formData.email,
         password: formData.password,
         role: formData.role,
         shopId: formData.role === "worker" ? formData.shopId : undefined,
       })
-
       navigate("/login")
-    }  catch (err) {
-  console.error("❌ Registration Error:", err); // 👈 log full error in console
-
-  // Try to get a meaningful message
-  if (err.response) {
-    console.error("🧭 Server responded with:", err.response.data);
-    console.error("🔢 Status Code:", err.response.status);
-    setError(err.response.data?.error || `Server Error: ${err.response.status}`);
-  } else if (err.request) {
-    console.error("📡 No response received from server:", err.request);
-    setError("No response from server. Please check if backend is running.");
-  } else {
-    console.error("⚙️ Request setup error:", err.message);
-    setError(`Error: ${err.message}`);
-  }
-}
-
+    } catch (err) {
+      const message = err.response?.data?.error || "Registration failed"
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -75,16 +57,8 @@ export default function Register() {
           <input
             type="text"
             name="name"
-            placeholder="Full Name"
+            placeholder="Worker Name"
             value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
             onChange={handleChange}
             required
           />
@@ -101,7 +75,6 @@ export default function Register() {
               type="button"
               className="password-toggle"
               onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -119,7 +92,6 @@ export default function Register() {
               type="button"
               className="password-toggle"
               onClick={() => setShowConfirmPassword((s) => !s)}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
             >
               {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -133,6 +105,7 @@ export default function Register() {
               <option value="shop1">Shop 1</option>
               <option value="shop2">Shop 2</option>
               <option value="shop3">Shop 3</option>
+              <option value="shop4">Shop 4</option>
             </select>
           )}
           <button type="submit" disabled={loading}>

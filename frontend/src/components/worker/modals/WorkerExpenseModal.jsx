@@ -55,11 +55,11 @@ export default function WorkerExpenseModal({ onClose, onSuccess }) {
         <button className="close-btn" onClick={onClose}>×</button>
         <h2>Worker Expense</h2>
         <p className="fund-info">
-            {remainingFund === 0 ? "available balance..." : `Available Fund: ₹${remainingFund.toFixed(2)}`}
+            {remainingFund === 0 ? "available balance..." : `Available Fund (उपलब्ध राशि): ₹${remainingFund.toFixed(2)}`}
         </p><br/>
         <form onSubmit={handleSubmit} className="expense-form">
           <div className="form-group2">
-            <label>Expense Title *</label>
+            <label>Expense Title * (खर्च वस्तु)</label>
             <input
               type="text"
               name="title"
@@ -70,7 +70,7 @@ export default function WorkerExpenseModal({ onClose, onSuccess }) {
           </div>
          <br/>
           <div className="form-group2">
-            <label>Amount *</label>
+            <label>Amount * (राशि)</label>
             <input
               type="number"
               name="amount"

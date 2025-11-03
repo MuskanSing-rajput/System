@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import api from "../utils/api"
 import "../styles/Workers.css"
@@ -12,7 +10,6 @@ export default function Workers() {
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     position: "",
     salary: "",
@@ -57,7 +54,6 @@ export default function Workers() {
       setEditingId(null)
       setFormData({
         name: "",
-        email: "",
         phone: "",
         position: "",
         salary: "",
@@ -76,7 +72,6 @@ export default function Workers() {
   const handleEdit = (worker) => {
     setFormData({
       name: worker.name,
-      email: worker.email,
       phone: worker.phone || "",
       position: worker.position || "Worker",
       salary: worker.salary || 0,
@@ -99,8 +94,6 @@ export default function Workers() {
     }
   }
 
-  // if (loading) return <div className="loading">Loading...</div>
-    // 🔹 Show spinner while fetching data
   if (loading) {
     return (
       <div className="modal-overlay">
@@ -115,7 +108,7 @@ export default function Workers() {
   return (
     <div className="workers-container">
       <div className="workers-header">
-        <h1>Worker Management</h1>
+        <h2>Worker Management</h2>
         <button
           className="btn-primary"
           onClick={() => {
@@ -123,7 +116,6 @@ export default function Workers() {
             setEditingId(null)
             setFormData({
               name: "",
-              email: "",
               phone: "",
               position: "",
               salary: "",
@@ -144,17 +136,6 @@ export default function Workers() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-            />
-          </div>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-              disabled={!!editingId}
-              title={editingId ? "Email cannot be changed" : ""}
             />
           </div>
           <div className="form-group">
@@ -214,46 +195,50 @@ export default function Workers() {
         </form>
       )}
 
-      <div className="workers-grid">
-        {workers.map((worker) => (
-          <div key={worker.id} className="worker-card">
-            <div className="worker-info">
-              <h3>{worker.name}</h3>
-              <p>
-                <strong>Position:</strong> {worker.position}
-              </p>
-              <p>
-                <strong>Email:</strong> {worker.email}
-              </p>
-              <p>
-                <strong>Phone:</strong> {worker.phone}
-              </p>
-              <p>
-                <strong>Salary:</strong> ₹{worker.salary.toLocaleString()}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span className={worker.isActive ? "active" : "inactive"}>
-                  {worker.isActive ? "Active" : "Inactive"}
-                </span>
-              </p>
-              {worker.user && (
-                <p>
-                  <strong>Shop:</strong> {worker.user.shopId || "Not assigned"}
-                </p>
-              )}
-            </div>
-            <div className="worker-actions">
-              <button className="btn-edit" onClick={() => handleEdit(worker)}>
-                Edit
-              </button>
-              <button className="btn-delete" onClick={() => handleDelete(worker.id)}>
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+     <div className="workers-grid">
+  {workers.length === 0 ? (
+    <div className="no-data-message">
+      <p>No workers found</p>
+    </div>
+  ) : (
+    workers.map((worker) => (
+      <div key={worker.id} className="worker-card">
+        <div className="worker-info">
+          <h3>{worker.name}</h3>
+          <p>
+            <strong>Position:</strong> {worker.position}
+          </p>
+          <p>
+            <strong>Phone:</strong> {worker.phone}
+          </p>
+          <p>
+            <strong>Salary:</strong> ₹{worker.salary.toLocaleString()}
+          </p>
+          <p>
+            <strong>Status:</strong>{" "}
+            <span className={worker.isActive ? "active" : "inactive"}>
+              {worker.isActive ? "Active" : "Inactive"}
+            </span>
+          </p>
+          {worker.user && (
+            <p>
+              <strong>Shop:</strong> {worker.user.shopId || "Not assigned"}
+            </p>
+          )}
+        </div>
+        <div className="worker-actions">
+          <button className="btn-edit" onClick={() => handleEdit(worker)}>
+            Edit
+          </button>
+          <button className="btn-delete" onClick={() => handleDelete(worker.id)}>
+            Delete
+          </button>
+        </div>
       </div>
+    ))
+  )}
+</div>
+
     </div>
   )
 }

@@ -41,7 +41,7 @@ export default function AddAmountModal({ onClose, onSuccess }) {
         <h2>Add Amount</h2>
         <form onSubmit={handleSubmit} className="add-amount-form">
           <div className="form-group2">
-            <label>Amount *</label>
+            <label>Amount * (रुपया)</label>
             <input
               type="number"
               name="amount"
@@ -51,13 +51,12 @@ export default function AddAmountModal({ onClose, onSuccess }) {
             />
           </div>
           <div className="form-group2">
-            <label>Given By *</label>
+            <label>Given By (किसने दिया)</label>
             <input
               type="text"
               name="givenBy"
               value={formData.givenBy}
               onChange={handleChange}
-              required
             />
           </div>
 

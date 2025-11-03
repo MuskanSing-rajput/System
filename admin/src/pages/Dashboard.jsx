@@ -30,33 +30,11 @@ export default function Dashboard({ user }) {
     }
   }
 
-  // const fetchShopWiseStats = async () => {
-  //   try {
-  //     const today = new Date().toISOString().split("T")[0]
-  //     const shops = ["shop1", "shop2", "shop3"]
-  //     const shopData = {}
-
-  //     for (const shop of shops) {
-  //       const response = await api.get("/admin-reports/daily", {
-  //         params: { date: today, shopId: shop },
-  //       })
-  //       shopData[shop] = {
-  //         totalSales: response.data.totalSales,
-  //         totalPurchases: response.data.totalPurchases,
-  //         totalExpenses: response.data.totalExpenses,
-  //         profit: response.data.profit,
-  //       }
-  //     }
-  //     setShopStats(shopData)
-  //   } catch (error) {
-  //     console.error("Error fetching shop stats:", error)
-  //   }
-  // }
 
 const fetchShopWiseStats = async () => {
   try {
     const today = new Date().toISOString().split("T")[0]
-    const shops = ["shop1", "shop2", "shop3"]
+    const shops = ["shop1", "shop2", "shop3","shop4"]
 
     // Run all requests in parallel
     const responses = await Promise.all(
@@ -112,6 +90,7 @@ const fetchShopWiseStats = async () => {
             <option value="shop1">Shop 1</option>
             <option value="shop2">Shop 2</option>
             <option value="shop3">Shop 3</option>
+            <option value="shop4">Shop 4</option>
           </select>
         </div>
       </div>

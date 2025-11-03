@@ -5,7 +5,7 @@ import { Eye, EyeOff } from "lucide-react"
 import "../styles/Login.css"
 
 export default function Login({ setIsAuthenticated, setUser }) {
-  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -18,7 +18,8 @@ export default function Login({ setIsAuthenticated, setUser }) {
     setLoading(true)
 
     try {
-      const response = await api.post("/auth/login", { email, password })
+      // Use 'name' instead of 'email'
+      const response = await api.post("/auth/login", { name, password })
       const { token, user } = response.data
 
       localStorage.setItem("token", token)
@@ -42,8 +43,13 @@ export default function Login({ setIsAuthenticated, setUser }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <label>Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
@@ -56,13 +62,13 @@ export default function Login({ setIsAuthenticated, setUser }) {
                 required
               />
               <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
           </div>
 

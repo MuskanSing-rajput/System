@@ -73,7 +73,7 @@ const fetchSales = async () => {
                   </td>
                   <td>{sale.item?.name || "-"}</td>
                   <td>{sale.customerName}</td>
-                  <td>{sale.quantity}</td>
+                  <td>{sale.quantity} kg</td>
                   <td>₹{sale.unitPrice?.toFixed(2)}</td>
                   <td>₹{sale.totalAmount?.toFixed(2)}</td>
                   <td>{new Date(sale.saleDate).toLocaleDateString()}</td>

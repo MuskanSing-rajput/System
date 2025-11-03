@@ -134,33 +134,33 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
 
             {/* Payment Type */}
           <div className="form-group">
-            <label>Payment Type</label>
+            <label>Payment Type (भुगतान का प्रकार)</label>
             <select
               name="paymentType"
               value={formData.paymentType}
               onChange={handleChange}
             >
-              <option value="paid">Paid</option>
-              <option value="borrow">Borrow</option>
+              <option value="paid">Paid (नगद)</option>
+              <option value="borrow">Borrow (उधार)</option>
             </select>
           </div>
 
           {/* Borrow Amount Field (only show if "borrow" selected) */}
           {formData.paymentType === "borrow" && (
             <div className="form-group">
-              <label>Borrow Amount (₹)</label>
+              <label>Borrow Amount (₹) (उधार राशि)</label>
               <input
                 type="number"
                 name="borrowAmount"
                 value={formData.borrowAmount}
                 onChange={handleChange}
-                placeholder="Enter borrowed amount (leave empty for full)"
+                placeholder="उधार ली गई राशि दर्ज करें (पूरी राशि के लिए खाली छोड़ दें)"
               />
             </div>
           )}
 
           <div className="form-group">
-            <label>Supplier</label>
+            <label>Supplier (देने वाला)</label>
             <input
               type="text"
               name="supplier"

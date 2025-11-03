@@ -8,43 +8,40 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  password  String
-  name      String
-  role      String     @default("worker")
-  shopId    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  workers   Worker[]
-  items     Item[]
-  purchases Purchase[]
-  sales     Sale[]
-  expenses  Expense[]
-  salaries  Salary[]
+  id          String   @id @default(cuid())
+  name        String   @unique 
+  password    String
+  role        String   @default("worker")
+  shopId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workers     Worker[]
+  items       Item[]
+  purchases   Purchase[]
+  sales       Sale[]
+  expenses    Expense[]
+  salaries    Salary[]
   workerFunds WorkerFund[]
 }
 
 model Worker {
   id          String       @id @default(cuid())
   userId      String
-  name        String
-  email       String       @unique
+  name        String        @unique  // unique name instead of email
   phone       String
   position    String
   salary      Float
   joinDate    DateTime
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   attendances Attendance[]
   salaries    Salary[]
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   workerExpenses WorkerExpense[]
-
-  @@unique([userId, email])
 }
+
+
 
 model Attendance {
   id        String    @id @default(cuid())
