@@ -87,7 +87,6 @@ export const addAttendance = async (req, res) => {
           data: {
             userId: workerUser.id,
             name: workerUser.name,
-            email: workerUser.email,
             phone: "",
             position: "Worker",
             salary: 0,

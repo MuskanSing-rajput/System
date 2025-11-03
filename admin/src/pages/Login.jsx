@@ -18,7 +18,7 @@ export default function Login({ setIsAuthenticated, setUser }) {
     setLoading(true)
 
     try {
-      // Use 'name' instead of 'email'
+
       const response = await api.post("/auth/login", { name, password })
       const { token, user } = response.data
 

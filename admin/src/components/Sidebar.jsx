@@ -58,7 +58,7 @@ export default function Sidebar({ user, setIsAuthenticated }) {
         <div className="sidebar-footer">
           <div className="user-info">
             <p>{user?.name}</p>
-            <small>{user?.email}</small>
+            <small>{user?.role}</small>
           </div>
           <button className="btn-logout" onClick={handleLogout}>
             Logout
