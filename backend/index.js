@@ -20,15 +20,15 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-// ✅ Proper CORS setup
+// Proper CORS setup
 
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://system-blond.vercel.app",
-      "https://system-lhmp.vercel.app",
+      "https://system-eight-sepia.vercel.app",
+      "https://system-p7v5.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
