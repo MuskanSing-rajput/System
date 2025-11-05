@@ -151,7 +151,7 @@ export const addWorker = async (req, res) => {
         phone,
         position,
         salary: Number.parseFloat(salary),
-        joinDate: new Date(joinDate),
+        joinDate: joinDate ? new Date(joinDate) : new Date(),
       },
       include: {
         user: { select: { shopId: true, name: true } },

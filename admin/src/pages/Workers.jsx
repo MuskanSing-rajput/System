@@ -213,8 +213,9 @@ export default function Workers() {
             <strong>Phone:</strong> {worker.phone}
           </p>
           <p>
-            <strong>Salary:</strong> ₹{worker.salary.toLocaleString()}
-          </p>
+          <strong>Salary:</strong> ₹
+          {worker.salary != null ? worker.salary.toLocaleString() : "0"}
+        </p>
           <p>
             <strong>Status:</strong>{" "}
             <span className={worker.isActive ? "active" : "inactive"}>
