@@ -155,6 +155,19 @@ const handleSubmit = async (e) => {
                 required
               />
             </div>
+            <div className="form-group">
+    <label>Total Amount (₹) (कुल राशि)</label>
+    <input
+      type="number"
+      value={
+        (formData.quantity && formData.unitPrice)
+          ? (formData.quantity * formData.unitPrice).toFixed(2)
+          : ""
+      }
+      readOnly
+      placeholder="Auto-calculated"
+    />
+  </div>
           </div>
 
            <div className="form-group">

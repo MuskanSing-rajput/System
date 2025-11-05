@@ -99,38 +99,54 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Quantity * (मात्रा)</label>
-              <input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                placeholder="Enter quantity"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Unit (इकाई)</label>
-              <select name="unit" value={formData.unit} onChange={handleChange}>
-                <option value="kg">kg</option>
-                <option value="gram">gram</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Unit Price (₹) * (इकाई मूल्य)</label>
-              <input
-                type="number"
-                name="unitPrice"
-                value={formData.unitPrice}
-                onChange={handleChange}
-                placeholder="Enter unit price"
-                step="0.01"
-                required
-              />
-            </div>
-          </div>
+      <div className="form-row">
+  <div className="form-group">
+    <label>Quantity * (मात्रा)</label>
+    <input
+      type="number"
+      name="quantity"
+      value={formData.quantity}
+      onChange={handleChange}
+      placeholder="Enter quantity"
+      required
+    />
+  </div>
+
+  <div className="form-group">
+    <label>Unit (इकाई)</label>
+    <select name="unit" value={formData.unit} onChange={handleChange}>
+      <option value="kg">kg</option>
+    </select>
+  </div>
+
+  <div className="form-group">
+    <label>Unit Price (₹) * (इकाई मूल्य)</label>
+    <input
+      type="number"
+      name="unitPrice"
+      value={formData.unitPrice}
+      onChange={handleChange}
+      placeholder="Enter unit price"
+      step="0.01"
+      required
+    />
+  </div>
+
+  {/* ✅ New read-only total amount field */}
+  <div className="form-group">
+    <label>Total Amount (₹) (कुल राशि)</label>
+    <input
+      type="number"
+      value={
+        (formData.quantity && formData.unitPrice)
+          ? (formData.quantity * formData.unitPrice).toFixed(2)
+          : ""
+      }
+      readOnly
+      placeholder="Auto-calculated"
+    />
+  </div>
+</div>
 
             {/* Payment Type */}
           <div className="form-group">
