@@ -2,82 +2,12 @@ import { prisma } from "../index.js"
 import bcrypt from "bcryptjs"
 
 // Get all workers for admin
-// export const getAllWorkers = async (req, res) => {
-//   try {
-//     const userId = req.userId
-//     const user = await prisma.user.findUnique({ where: { id: userId } })
-
-//     if (!user || user.role !== "admin") {
-//       return res.status(403).json({ error: "Unauthorized" })
-//     }
-
-//     const workerUsers = await prisma.user.findMany({
-//       where: { role: "worker" },
-//       include: {
-//         workers: {
-//           include: {
-//             attendances: { orderBy: { date: "desc" }, take: 30 },
-//             salaries: { orderBy: { createdAt: "desc" }, take: 12 },
-//           },
-//         },
-//       },
-//       orderBy: { createdAt: "desc" },
-//     })
-
-//     const workers = []
-//     for (const workerUser of workerUsers) {
-//       if (workerUser.workers.length > 0) {
-//         const worker = workerUser.workers[0]
-//         workers.push({
-//           ...worker,
-//           user: {
-//             shopId: workerUser.shopId,
-//             name: workerUser.name,
-//           },
-//         })
-//       } else {
-//         workers.push({
-//           id: `virtual-${workerUser.id}`,
-//           userId: workerUser.id,
-//           name: workerUser.name,
-//           phone: "",
-//           position: "Worker",
-//           salary: 0,
-//           joinDate: workerUser.createdAt,
-//           isActive: true,
-//           createdAt: workerUser.createdAt,
-//           updatedAt: workerUser.updatedAt,
-//           attendances: [],
-//           salaries: [],
-//           user: {
-//             shopId: workerUser.shopId,
-//             name: workerUser.name,
-//           },
-//         })
-//       }
-//     }
-
-//     res.json(workers)
-//   } catch (error) {
-//     console.error("🔥 Error in getAllWorkers:", error)
-//     res.status(500).json({ error: error.message })
-//   }
-// }
-
 export const getAllWorkers = async (req, res) => {
-  console.log("📥 Incoming GET /workers request")  // 👈 add this
-
   try {
-    console.log("✅ Entering try block")
-
     const userId = req.userId
-    console.log("👤 userId:", userId)
-
     const user = await prisma.user.findUnique({ where: { id: userId } })
-    console.log("🔎 Admin check:", user)
 
     if (!user || user.role !== "admin") {
-      console.log("⛔ Unauthorized user")
       return res.status(403).json({ error: "Unauthorized" })
     }
 
@@ -94,13 +24,45 @@ export const getAllWorkers = async (req, res) => {
       orderBy: { createdAt: "desc" },
     })
 
-    console.log("✅ Workers fetched:", workerUsers.length);
+    const workers = []
+    for (const workerUser of workerUsers) {
+      if (workerUser.workers.length > 0) {
+        const worker = workerUser.workers[0]
+        workers.push({
+          ...worker,
+          user: {
+            shopId: workerUser.shopId,
+            name: workerUser.name,
+          },
+        })
+      } else {
+        workers.push({
+          id: `virtual-${workerUser.id}`,
+          userId: workerUser.id,
+          name: workerUser.name,
+          phone: "",
+          position: "Worker",
+          salary: 0,
+          joinDate: workerUser.createdAt,
+          isActive: true,
+          createdAt: workerUser.createdAt,
+          updatedAt: workerUser.updatedAt,
+          attendances: [],
+          salaries: [],
+          user: {
+            shopId: workerUser.shopId,
+            name: workerUser.name,
+          },
+        })
+      }
+    }
+
+    res.json(workers)
   } catch (error) {
     console.error("🔥 Error in getAllWorkers:", error)
     res.status(500).json({ error: error.message })
   }
 }
-
 
 // Get single worker details
 export const getWorkerById = async (req, res) => {
