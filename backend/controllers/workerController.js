@@ -11,31 +11,22 @@ export const getAllWorkers = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized" })
     }
 
-    // Get all users with role "worker"
     const workerUsers = await prisma.user.findMany({
       where: { role: "worker" },
       include: {
         workers: {
           include: {
-            attendances: {
-              orderBy: { date: "desc" },
-              take: 30,
-            },
-            salaries: {
-              orderBy: { createdAt: "desc" },
-              take: 12,
-            },
+            attendances: { orderBy: { date: "desc" }, take: 30 },
+            salaries: { orderBy: { createdAt: "desc" }, take: 12 },
           },
         },
       },
       orderBy: { createdAt: "desc" },
     })
 
-    // Transform to include all worker users, creating Worker records if missing
     const workers = []
     for (const workerUser of workerUsers) {
       if (workerUser.workers.length > 0) {
-        // User has Worker record(s), use the first one
         const worker = workerUser.workers[0]
         workers.push({
           ...worker,
@@ -45,7 +36,6 @@ export const getAllWorkers = async (req, res) => {
           },
         })
       } else {
-        // User doesn't have Worker record, create a virtual one
         workers.push({
           id: `virtual-${workerUser.id}`,
           userId: workerUser.id,
@@ -69,9 +59,11 @@ export const getAllWorkers = async (req, res) => {
 
     res.json(workers)
   } catch (error) {
+    console.error("🔥 Error in getAllWorkers:", error)
     res.status(500).json({ error: error.message })
   }
 }
+
 
 // Get single worker details
 export const getWorkerById = async (req, res) => {
