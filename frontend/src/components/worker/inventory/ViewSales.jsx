@@ -52,6 +52,7 @@ const fetchSales = async () => {
                 <th>Quantity</th>
                 <th>Unit Price</th>
                 <th>Total</th>
+                <th>Payment Type</th>
                 <th>Date</th>
               </tr>
             </thead>
@@ -76,6 +77,11 @@ const fetchSales = async () => {
                   <td>{sale.quantity} kg</td>
                   <td>₹{sale.unitPrice?.toFixed(2)}</td>
                   <td>₹{sale.totalAmount?.toFixed(2)}</td>
+                 <td>
+                  {sale.paymentType === "borrow"
+                    ? "borrow (उधार)"
+                    : "paid (नकद)"}
+                </td>
                   <td>{new Date(sale.saleDate).toLocaleDateString()}</td>
                 </tr>
               ))}

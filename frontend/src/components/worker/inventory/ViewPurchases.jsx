@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import api from "../../../utils/api"
 import ImageModal from "../../../components/ImageModal"
@@ -56,6 +54,7 @@ const fetchPurchases = async () => {
                 <th>Quantity</th>
                 <th>Unit Price</th>
                 <th>Total</th>
+                <th>Payment Type</th>
                 <th>Date</th>
               </tr>
             </thead>
@@ -81,6 +80,11 @@ const fetchPurchases = async () => {
                   <td>{purchase.quantity} kg</td>
                   <td>₹{purchase.unitPrice?.toFixed(2)}</td>
                   <td>₹{purchase.totalAmount?.toFixed(2)}</td>
+                  <td>
+                  {purchase.paymentType === "borrow"
+                    ? "borrow (उधार)"
+                    : "paid (नकद)"}
+                </td>
                   <td>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
                 </tr>
               ))}
