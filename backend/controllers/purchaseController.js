@@ -100,52 +100,6 @@ export const createPurchase = async (req, res) => {
   }
 }
 
-// export const getPurchases = async (req, res) => {
-//   try {
-//     const { startDate, endDate, shopId } = req.query
-//     const user = await prisma.user.findUnique({ where: { id: req.userId } })
-
-//     let where = {}
-    
-//     // If admin, can see all purchases or filter by shop
-//     if (user.role === "admin") {
-//       if (shopId && shopId !== "all") {
-//         const users = await prisma.user.findMany({
-//           where: { shopId, role: "worker" },
-//           select: { id: true },
-//         })
-//         const userIds = users.map((u) => u.id)
-//         if (userIds.length > 0) {
-//           where.userId = { in: userIds }
-//         } else {
-//           return res.json([])
-//         }
-//       }
-//       // If shopId is "all" or not provided, admin sees all purchases
-//     } else {
-//       // For workers, only see their own purchases
-//       where.userId = req.userId
-//     }
-
-//     // Add date filters if provided
-//     if (startDate && endDate) {
-//       where.purchaseDate = {
-//         gte: new Date(startDate),
-//         lte: new Date(endDate),
-//       }
-//     }
-
-//     const purchases = await prisma.purchase.findMany({
-//       where,
-//       include: { item: true, user: true },
-//       orderBy: { purchaseDate: "desc" },
-//     })
-//     res.json(purchases)
-//   } catch (error) {
-//     res.status(400).json({ error: error.message })
-//   }
-// }
-
 export const getPurchases = async (req, res) => {
   try {
     const { startDate, endDate, shopId, page = 1, limit = 20 } = req.query;
@@ -295,6 +249,72 @@ export const updatePurchase = async (req, res) => {
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+export const payBorrowAmount = async (req, res) => {
+  try {
+    const { id } = req.params; // purchase id
+    const { amount } = req.body; // amount being paid from borrow
+
+    // Find the purchase
+    const purchase = await prisma.purchase.findUnique({
+      where: { id },
+    });
+
+    if (!purchase) {
+      return res.status(404).json({ error: "Purchase not found" });
+    }
+
+    if (purchase.paymentType !== "borrow") {
+      return res.status(400).json({ error: "This purchase is not a borrow" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: purchase.userId },
+    });
+
+    if (!user || !user.shopId) {
+      return res.status(400).json({ error: "User not linked to any shop" });
+    }
+
+    // Find fund of that shop
+    const shopFund = await prisma.workerFund.findFirst({
+      where: { shopId: user.shopId },
+    });
+
+    if (!shopFund) {
+      return res.status(400).json({ error: "No fund available for this shop" });
+    }
+
+    if (shopFund.remainingAmount < amount) {
+      return res
+        .status(400)
+        .json({
+          error: `Insufficient funds. Available ₹${shopFund.remainingAmount}`,
+        });
+    }
+
+    // Deduct from fund
+    await prisma.workerFund.update({
+      where: { id: shopFund.id },
+      data: {
+        remainingAmount: { decrement: amount },
+      },
+    });
+
+    // Update purchase to mark it paid
+    const updated = await prisma.purchase.update({
+      where: { id },
+      data: {
+        borrowAmount: 0,
+        paymentType: "paid",
+      },
+    });
+
+    res.json({ message: "Borrow amount paid successfully", updated });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
 

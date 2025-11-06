@@ -32,6 +32,17 @@ const fetchPurchases = async () => {
   }
 }
 
+const handlePayBorrow = async (id, amount) => {
+  if (!window.confirm(`Pay ₹${amount}?`)) return;
+  try {
+    await api.put(`/purchases/${id}/pay-borrow`, { amount });
+    alert("Borrow amount paid!");
+    fetchPurchases(); // reload list
+  } catch (err) {
+    alert(err.response?.data?.error || "Error paying borrow amount");
+  }
+};
+
 
   return (
     <div className="purchases-container">
@@ -80,11 +91,22 @@ const fetchPurchases = async () => {
                   <td>{purchase.quantity} kg</td>
                   <td>₹{purchase.unitPrice?.toFixed(2)}</td>
                   <td>₹{purchase.totalAmount?.toFixed(2)}</td>
-                  <td>
-                  {purchase.paymentType === "borrow"
-                    ? "borrow (उधार)"
-                    : "paid (नकद)"}
-                </td>
+                <td>
+            {purchase.paymentType === "borrow" ? (
+              <>
+                <span>{purchase.borrowAmount} ₹ (उधार)</span>&nbsp;
+                <button
+                  onClick={() => handlePayBorrow(purchase.id,purchase.borrowAmount)}
+                  className="btn-pay"
+                >
+                  Pay
+                </button>
+              </>
+            ) : (
+              <span>(नगद)</span>
+            )}
+          </td>
+
                   <td>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
                 </tr>
               ))}

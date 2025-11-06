@@ -31,6 +31,19 @@ const fetchSales = async () => {
   }
 }
 
+const handlePayBorrowSale = async (id, amount) => {
+  if (!window.confirm(`Mark ₹${amount} as paid?`)) return;
+
+  try {
+    await api.put(`/sales/${id}/pay-borrow`, { amount });
+    alert("Borrow amount marked as paid successfully!");
+    fetchSales(); // reload updated list
+  } catch (error) {
+    alert(error.response?.data?.error || "Error updating sale");
+  }
+};
+
+
   return (
     <div className="sales-container">
       <h2>Sales History</h2>
@@ -77,11 +90,26 @@ const fetchSales = async () => {
                   <td>{sale.quantity} kg</td>
                   <td>₹{sale.unitPrice?.toFixed(2)}</td>
                   <td>₹{sale.totalAmount?.toFixed(2)}</td>
-                 <td>
+                 {/* <td>
                   {sale.paymentType === "borrow"
                     ? "borrow (उधार)"
                     : "paid (नकद)"}
-                </td>
+                </td> */}
+                <td>
+            {sale.paymentType === "borrow" ? (
+              <>
+                <span>{sale.borrowAmount} ₹ (उधार)</span>&nbsp;
+                <button
+                  onClick={() => handlePayBorrowSale(sale.id, sale.borrowAmount)}
+                  className="btn-pay"
+                >
+                  Pay
+                </button>
+              </>
+            ) : (
+              <span>(नकद)</span>
+            )}
+          </td>
                   <td>{new Date(sale.saleDate).toLocaleDateString()}</td>
                 </tr>
               ))}
