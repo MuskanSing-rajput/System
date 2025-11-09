@@ -41,7 +41,7 @@ export const createSale = async (req, res) => {
       },
     })
 
-    // ✅ Decrease stock after sale
+    //  Decrease stock after sale
     await prisma.item.update({
       where: { id: itemId },
       data: { stock: { decrement: qty } },
@@ -55,11 +55,12 @@ export const createSale = async (req, res) => {
 
 export const getSales = async (req, res) => {
   try {
-    const { startDate, endDate, shopId, page = 1, limit = 20 } = req.query;
+    const { shopId, page = 1, limit = 50 } = req.query;
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
 
     let where = {};
 
+    //  Role-based filtering
     if (user.role === "admin") {
       if (shopId && shopId !== "all") {
         const users = await prisma.user.findMany({
@@ -74,9 +75,25 @@ export const getSales = async (req, res) => {
       where.userId = req.userId;
     }
 
-    if (startDate && endDate) {
-      where.saleDate = { gte: new Date(startDate), lte: new Date(endDate) };
-    }
+    // Auto filter for TODAY (India time)
+    const now = new Date();
+    const todayIST = new Date(
+      now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+    );
+    const startOfDayIST = new Date(todayIST);
+    startOfDayIST.setHours(0, 0, 0, 0);
+    const endOfDayIST = new Date(todayIST);
+    endOfDayIST.setHours(23, 59, 59, 999);
+
+    // Convert IST time range to UTC for DB filter
+    const startUTC = new Date(
+      startOfDayIST.getTime() - 5.5 * 60 * 60 * 1000
+    );
+    const endUTC = new Date(
+      endOfDayIST.getTime() - 5.5 * 60 * 60 * 1000
+    );
+
+    where.saleDate = { gte: startUTC, lte: endUTC };
 
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -102,8 +119,18 @@ export const getSales = async (req, res) => {
       prisma.sale.count({ where }),
     ]);
 
-    res.json({ data: sales, totalCount });
+    // Convert sale date to IST for frontend
+    const formattedSales = sales.map((s) => ({
+      ...s,
+      saleDateIST: new Date(s.saleDate).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour12: true,
+      }),
+    }));
+
+    res.json({ data: formattedSales, totalCount });
   } catch (error) {
+    console.error("❌ Error in getSales:", error);
     res.status(400).json({ error: error.message });
   }
 };

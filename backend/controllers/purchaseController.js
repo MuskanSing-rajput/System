@@ -102,11 +102,12 @@ export const createPurchase = async (req, res) => {
 
 export const getPurchases = async (req, res) => {
   try {
-    const { startDate, endDate, shopId, page = 1, limit = 20 } = req.query;
+    const { startDate, shopId, page = 1, limit = 50 } = req.query;
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
 
     let where = {};
 
+    //Shop filtering for admin
     if (user.role === "admin") {
       if (shopId && shopId !== "all") {
         const users = await prisma.user.findMany({
@@ -121,19 +122,24 @@ export const getPurchases = async (req, res) => {
       where.userId = req.userId;
     }
 
-   if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); 
+    //Always restrict to today's IST range — even if startDate is missing
+    const targetDate = startDate
+      ? new Date(startDate)
+      : new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
 
-      where.purchaseDate = {
-        gte: start,
-        lte: end,
-      };
-    }
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+    const day = String(targetDate.getDate()).padStart(2, "0");
 
+    const startUTC = new Date(`${year}-${month}-${day}T00:00:00+05:30`);
+    const endUTC = new Date(`${year}-${month}-${day}T23:59:59+05:30`);
+
+    where.purchaseDate = { gte: startUTC, lte: endUTC };
+
+    //Pagination setup
     const skip = (Number(page) - 1) * Number(limit);
 
+    //Fetch filtered purchases
     const [purchases, totalCount] = await Promise.all([
       prisma.purchase.findMany({
         where,
@@ -156,12 +162,25 @@ export const getPurchases = async (req, res) => {
       prisma.purchase.count({ where }),
     ]);
 
-    res.json({ data: purchases, totalCount });
+    // Convert UTC → IST
+    const formattedPurchases = purchases.map((p) => ({
+      ...p,
+      purchaseDateIST: new Date(p.purchaseDate).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour12: true,
+      }),
+    }));
+
+    // Debug preview
+    formattedPurchases.slice(0, 3).forEach((p, i) => {
+    });
+
+    res.json({ data: formattedPurchases, totalCount });
   } catch (error) {
+    console.error("❌ Error in getPurchases:", error);
     res.status(400).json({ error: error.message });
   }
 };
-
 
 export const updatePurchase = async (req, res) => {
   try {
