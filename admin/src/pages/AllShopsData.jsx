@@ -11,14 +11,14 @@ export default function AllShopsData() {
   const [saving, setSaving] = useState(false)
   const [editType, setEditType] = useState("")
   const [startDate, setStartDate] = useState(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0]
+  new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0]
   )
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0])
 
   // Pagination states
   const [salesPage, setSalesPage] = useState(1)
   const [purchasePage, setPurchasePage] = useState(1)
-  const itemsPerPage = 10 // adjustable
+  const itemsPerPage = 10 
 
   useEffect(() => {
     fetchAllData()
