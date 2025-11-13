@@ -9,10 +9,10 @@ datasource db {
 
 model User {
   id          String   @id @default(cuid())
-  name        String   @unique 
+  name        String   @unique
   password    String
   role        String   @default("worker")
-  shopId      String?
+  shopId      String?  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   workers     Worker[]
@@ -21,8 +21,9 @@ model User {
   sales       Sale[]
   expenses    Expense[]
   salaries    Salary[]
-  workerFunds WorkerFund[]
+  workerFunds WorkerFund[] @relation("OwnerFunds")
 }
+
 
 model Worker {
   id          String       @id @default(cuid())
@@ -142,7 +143,7 @@ model Expense {
 model WorkerFund {
   id              String   @id @default(cuid())
   shopId          String?
-  ownerId         String
+  ownerId         String?
   workerId        String?
   givenAmount     Float
   remainingAmount Float
@@ -150,8 +151,8 @@ model WorkerFund {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  owner  User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  worker Worker? @relation("WorkerFunds", fields: [workerId], references: [id], onDelete: Cascade) 
+  owner  User?   @relation("OwnerFunds", fields: [ownerId], references: [id], onDelete: Cascade)
+  worker Worker? @relation("WorkerFunds", fields: [workerId], references: [id], onDelete: Cascade)
 }
 
 
