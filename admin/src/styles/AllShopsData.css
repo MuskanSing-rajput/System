@@ -350,3 +350,15 @@ table tr:hover {
 }
 
 
+.delete-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #d9363e;
+}

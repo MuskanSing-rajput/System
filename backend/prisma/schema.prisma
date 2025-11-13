@@ -39,6 +39,7 @@ model Worker {
   salaries    Salary[]
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   workerExpenses WorkerExpense[]
+  funds           WorkerFund[]   @relation("WorkerFunds") 
 }
 
 model Attendance {
@@ -142,6 +143,7 @@ model WorkerFund {
   id              String   @id @default(cuid())
   shopId          String?
   ownerId         String
+  workerId        String?
   givenAmount     Float
   remainingAmount Float
   givenBy         String
@@ -149,7 +151,9 @@ model WorkerFund {
   updatedAt       DateTime @updatedAt
 
   owner  User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  worker Worker? @relation("WorkerFunds", fields: [workerId], references: [id], onDelete: Cascade) 
 }
+
 
 model WorkerExpense {
   id          String   @id @default(cuid())

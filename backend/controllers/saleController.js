@@ -310,3 +310,36 @@ export const payBorrowSale = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+
+export const deleteSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the sale with related item
+    const sale = await prisma.sale.findUnique({
+      where: { id },
+      include: { item: true },
+    });
+
+    if (!sale) {
+      return res.status(404).json({ error: "Sale not found" });
+    }
+
+    const { itemId, quantity } = sale;
+
+    // 1️⃣ Add sold quantity back to stock
+    await prisma.item.update({
+      where: { id: itemId },
+      data: { stock: { increment: quantity } },
+    });
+
+    // 2️⃣ Delete sale
+    await prisma.sale.delete({ where: { id } });
+
+    res.json({ message: "Sale deleted successfully" });
+  } catch (error) {
+    console.error("❌ Error deleting sale:", error);
+    res.status(400).json({ error: error.message });
+  }
+};

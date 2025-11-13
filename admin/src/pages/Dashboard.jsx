@@ -61,9 +61,6 @@ const fetchShopWiseStats = async () => {
   }
 }
 
-
-  // if (loading) return <div className="loading">Loading...</div>
-    // 🔹 Show spinner while fetching data
   if (loading) {
     return (
       <div className="modal-overlay">

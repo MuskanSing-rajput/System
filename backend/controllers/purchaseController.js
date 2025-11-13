@@ -343,3 +343,50 @@ export const payBorrowAmount = async (req, res) => {
   }
 };
 
+export const deletePurchase = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the purchase with related item and user
+    const purchase = await prisma.purchase.findUnique({
+      where: { id },
+      include: {
+        item: true,
+        user: true,
+      },
+    });
+
+    if (!purchase) {
+      return res.status(404).json({ error: "Purchase not found" });
+    }
+
+    const { itemId, quantity, totalAmount, paymentType, user } = purchase;
+
+    // Get shop fund
+    const shopFund = await prisma.workerFund.findFirst({
+      where: { shopId: user.shopId },
+    });
+
+    // 1️⃣ Update stock (reduce purchased quantity)
+    await prisma.item.update({
+      where: { id: itemId },
+      data: { stock: { decrement: quantity } },
+    });
+
+    // 2️⃣ If payment was not "borrow", refund the fund
+    if (paymentType !== "borrow" && shopFund) {
+      await prisma.workerFund.update({
+        where: { id: shopFund.id },
+        data: { remainingAmount: { increment: totalAmount } },
+      });
+    }
+
+    // 3️⃣ Delete purchase
+    await prisma.purchase.delete({ where: { id } });
+
+    res.json({ message: "Purchase deleted successfully" });
+  } catch (error) {
+    console.error("❌ Error deleting purchase:", error);
+    res.status(400).json({ error: error.message });
+  }
+};

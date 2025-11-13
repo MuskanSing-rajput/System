@@ -120,7 +120,9 @@ export default function Reports() {
 {reportData?.fundDetails && reportData.fundDetails.transactions?.length > 0 && (
   <div className="report-card fund">
     <h3>Funds Given by Owner</h3>
-    <p className="amount">₹{reportData.fundDetails.totalFundsGiven?.toLocaleString() || 0}</p>
+    <p className="amount">
+      ₹{reportData.fundDetails.totalFundsGiven?.toLocaleString() || 0}
+    </p>
     <p className="count">{reportData.fundDetails.count} transactions</p>
 
     <table className="fund-table">
@@ -128,8 +130,10 @@ export default function Reports() {
         <tr>
           <th>Date</th>
           <th>Time</th>
+          <th>Worker Name</th>
           <th>Given By</th>
           <th>Amount (₹)</th>
+          <th>Remaining Amount (₹)</th>
         </tr>
       </thead>
       <tbody>
@@ -138,9 +142,17 @@ export default function Reports() {
           return (
             <tr key={t.id}>
               <td>{dateObj.toLocaleDateString()}</td>
-              <td>{dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</td>
+              <td>
+                {dateObj.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </td>
+              <td>{t.shopId || reportData.fundDetails.shopId || "-"}</td>
               <td>{t.givenBy}</td>
               <td>₹{t.givenAmount.toLocaleString()}</td>
+              <td>₹{t.remainingAmount?.toLocaleString() || 0}</td>
             </tr>
           )
         })}
