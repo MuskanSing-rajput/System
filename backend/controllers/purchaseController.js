@@ -16,54 +16,83 @@ export const createPurchase = async (req, res) => {
       image,
       paymentType,
       borrowAmount,
-    } = req.body
+    } = req.body;
 
-    const userId = req.userId
+    const userId = req.userId;
 
     // find worker and shop
     const worker = await prisma.worker.findFirst({
       where: { userId },
       include: { user: true },
-    })
-    if (!worker) return res.status(404).json({ error: "Worker not found" })
+    });
 
-    const shopId = worker.user.shopId
-    if (!shopId) return res.status(400).json({ error: "Worker not linked to any shop" })
+    if (!worker)
+      return res.status(404).json({ error: "Worker not found" });
 
-    // check or create item
-    let resolvedItemId = itemId
+    const shopId = worker.user.shopId;
+    if (!shopId)
+      return res.status(400).json({ error: "Worker not linked to any shop" });
+
+    // ✔ Check or create item
+    let resolvedItemId = itemId;
+
     if (!resolvedItemId && itemName) {
       const existing = await prisma.item.findFirst({
         where: { userId, name: itemName },
-      })
+      });
+
       resolvedItemId = existing
         ? existing.id
-        : (await prisma.item.create({
-            data: {
-              userId,
-              name: itemName,
-              unit,
-              category: "general",
-              stock: 0,
-            },
-          })).id
+        : (
+            await prisma.item.create({
+              data: {
+                userId,
+                name: itemName,
+                unit,
+                category: "general",
+                stock: 0,
+              },
+            })
+          ).id;
     }
 
-    const qty = parseFloat(quantity)
-    const price = parseFloat(unitPrice)
-    const totalAmount = qty * price
+    const qty = parseFloat(quantity);
+    const price = parseFloat(unitPrice);
+    const totalAmount = qty * price;
 
-    // find fund by shopId
-    const shopFund = await prisma.workerFund.findFirst({ where: { shopId } })
-    if (!shopFund)
-      return res.status(400).json({ error: "No fund available for this shop" })
+    // ✔ Get all funds for the shop
+    const shopFunds = await prisma.workerFund.findMany({
+      where: { shopId },
+      orderBy: { createdAt: "desc" },
+    });
 
-    if (paymentType !== "borrow" && shopFund.remainingAmount < totalAmount)
+    if (shopFunds.length === 0)
+      return res.status(400).json({ error: "No fund available for this shop" });
+
+    // ✔ Calculate total remaining balance
+    const totalRemaining = shopFunds.reduce(
+      (sum, f) => sum + (f.remainingAmount || 0),
+      0
+    );
+
+    // ✔ Check insufficient funds
+    if (paymentType !== "borrow" && totalRemaining < totalAmount) {
       return res.status(400).json({
-        error: `Insufficient funds. Available: ₹${shopFund.remainingAmount}, Required: ₹${totalAmount}`,
-      })
+        error: `Insufficient funds. Available: ₹${totalRemaining}, Required: ₹${totalAmount}`,
+      });
+    }
 
-    // create purchase
+    // ✔ Deduct only from latest fund record
+    const latestFund = shopFunds[0];
+
+    if (paymentType !== "borrow") {
+      await prisma.workerFund.update({
+        where: { id: latestFund.id },
+        data: { remainingAmount: { decrement: totalAmount } },
+      });
+    }
+
+    // ✔ Create purchase
     const purchase = await prisma.purchase.create({
       data: {
         itemId: resolvedItemId,
@@ -78,27 +107,23 @@ export const createPurchase = async (req, res) => {
         borrowAmount: paymentType === "borrow" ? borrowAmount : null,
         userId,
       },
-    })
+    });
 
-    // update stock
+    // ✔ Update stock
     await prisma.item.update({
       where: { id: resolvedItemId },
       data: { stock: { increment: qty } },
-    })
+    });
 
-    // deduct funds if not borrow
-    if (paymentType !== "borrow") {
-      await prisma.workerFund.update({
-        where: { id: shopFund.id },
-        data: { remainingAmount: { decrement: totalAmount } },
-      })
-    }
-
-    res.json({ message: "Purchase successful", purchase })
+    res.json({
+      message: "Purchase successful",
+      purchase,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: error.message });
   }
-}
+};
+
 
 export const getPurchases = async (req, res) => {
   try {
