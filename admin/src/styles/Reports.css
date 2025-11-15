@@ -129,3 +129,66 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Horizontal scroll wrapper for large tables */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 15px;
+  border-radius: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #666 #222;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #222;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 10px;
+}
+
+/* Table Styling */
+.fund-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px; /* Always enables horizontal scroll if needed */
+}
+
+.fund-table th,
+.fund-table td {
+  padding: 12px 15px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.fund-table th {
+  background-color: #046d96;
+  color: white;
+  font-weight: 600;
+}
+
+.fund-table tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+.fund-table tr:hover {
+  background-color: #022837;
+}
+
+/* Mobile friendly */
+@media (max-width: 768px) {
+  .fund-table {
+    min-width: 600px; /* ensure scroll on mobile */
+  }
+}
+
+.table-wrapper td{
+  color: black;
+}

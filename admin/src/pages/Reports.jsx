@@ -126,7 +126,7 @@ export default function Reports() {
       ₹{reportData.fundDetails.totalFundsGiven?.toLocaleString() || 0}
     </p>
     <p className="count">{reportData.fundDetails.count} transactions</p>
-
+<div className="table-wrapper">
     <table className="fund-table">
       <thead>
         <tr>
@@ -160,6 +160,7 @@ export default function Reports() {
         })}
       </tbody>
     </table>
+    </div>
   </div>
 )}
 
@@ -170,6 +171,7 @@ export default function Reports() {
     <p className="amount">₹{reportData.workerExpenseDetails.totalWorkerExpenses?.toLocaleString() || 0}</p>
     <p className="count">{reportData.workerExpenseDetails.count} transactions</p>
 
+ <div className="table-wrapper">
     <table className="fund-table">
       <thead>
         <tr>
@@ -193,6 +195,7 @@ export default function Reports() {
         })}
       </tbody>
     </table>
+    </div>
   </div>
 )}
 
