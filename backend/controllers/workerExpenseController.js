@@ -25,7 +25,7 @@ export const addWorkerExpense = async (req, res) => {
       return res.status(400).json({ error: "Worker not linked to any shop" });
     }
 
-    // Fetch ALL funds
+    // Fetch ALL funds of this shop
     const funds = await prisma.workerFund.findMany({
       where: { shopId },
     });
@@ -34,7 +34,7 @@ export const addWorkerExpense = async (req, res) => {
       return res.status(400).json({ error: "No fund found for this shop" });
     }
 
-    // Calculate total remaining balance
+    // Calculate total remaining
     const totalRemaining = funds.reduce(
       (sum, f) => sum + (f.remainingAmount || 0),
       0
@@ -44,20 +44,20 @@ export const addWorkerExpense = async (req, res) => {
       return res.status(400).json({ error: "Insufficient fund balance" });
     }
 
-    // Deduct from latest fund
+    // Deduct amount from latest fund (FIFO)
     const latestFund = await prisma.workerFund.findFirst({
       where: { shopId },
       orderBy: { createdAt: "desc" },
     });
 
-    const updatedFund = await prisma.workerFund.update({
+    await prisma.workerFund.update({
       where: { id: latestFund.id },
       data: {
         remainingAmount: latestFund.remainingAmount - parseFloat(amount),
       },
     });
 
-    // Add expense
+    // Save worker expense record
     const expense = await prisma.workerExpense.create({
       data: {
         workerId: worker.id,
@@ -66,12 +66,23 @@ export const addWorkerExpense = async (req, res) => {
       },
     });
 
+    // ⬇️ Recalculate actual remaining balance after update
+    const allFundsAfterUpdate = await prisma.workerFund.findMany({
+      where: { shopId },
+    });
+
+    const newTotalRemaining = allFundsAfterUpdate.reduce(
+      (sum, f) => sum + (f.remainingAmount || 0),
+      0
+    );
+
+    // Return correct balance
     res.json({
       message: "Expense added successfully",
       expense,
-      remainingFund: updatedFund.remainingAmount,
-      totalRemaining: totalRemaining - amount,
+      remainingFund: newTotalRemaining,
     });
+
   } catch (error) {
     console.error("Worker expense error:", error);
     res.status(500).json({ error: error.message });
@@ -82,7 +93,6 @@ export const getWorkerExpenses = async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Find worker by userId
     const worker = await prisma.worker.findFirst({
       where: { userId },
     });
@@ -91,7 +101,6 @@ export const getWorkerExpenses = async (req, res) => {
       return res.status(404).json({ error: "Worker not found" });
     }
 
-    // Fetch expenses using worker.id
     const expenses = await prisma.workerExpense.findMany({
       where: { workerId: worker.id },
       orderBy: { date: "desc" },
