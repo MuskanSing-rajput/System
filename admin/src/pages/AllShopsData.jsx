@@ -77,7 +77,7 @@ const totalPurchaseQty = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0
         itemName: editingItem.item?.name,
         unit: "kg",
         supplierName: editingItem.supplierName,
-        supplierContact: editingItem.supplierContact,
+        supplierPhone: editingItem.supplierPhone,
         quantity: editingItem.quantity,
         unitPrice: editingItem.unitPrice,
         purchaseDate: editingItem.purchaseDate,
@@ -227,7 +227,7 @@ const totalPurchaseQty = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0
                 <tbody>
                   {paginatedSales.map((sale) => (
                     <tr key={sale.id}>
-                      <td>{sale.saleDateIST ? new Date(sale.saleDateIST).toLocaleDateString() : (sale.saleDate ? new Date(sale.saleDate).toLocaleDateString() : "-")}</td>
+                      <td>{sale.saleDateIST ? sale.saleDateIST.split(",")[0] : (sale.saleDate ? new Date(sale.saleDate).toLocaleDateString() : "-")}</td>
                       <td>{sale.item?.name || "N/A"}</td>
                       <td>{sale.customerName || "-"}</td>
                       <td>{sale.user?.name || "-"}</td>
@@ -303,7 +303,7 @@ const totalPurchaseQty = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0
                 <tbody>
                   {paginatedPurchases.map((purchase) => (
                     <tr key={purchase.id}>
-                      <td>{purchase.purchaseDateIST ? new Date(purchase.purchaseDateIST).toLocaleDateString() : (purchase.purchaseDate ? new Date(purchase.purchaseDate).toLocaleDateString() : "-")}</td>
+                      <td>{purchase.purchaseDateIST ? purchase.purchaseDateIST.split(",")[0] : (purchase.purchaseDate ? new Date(purchase.purchaseDate).toLocaleDateString() : "-")}</td>
                       <td>{purchase.item?.name || "N/A"}</td>
                       <td>{purchase.supplierName || "-"}</td>
                       <td>{purchase.user?.name || "-"}</td>

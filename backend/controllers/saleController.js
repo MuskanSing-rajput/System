@@ -6,7 +6,6 @@ export const createSale = async (req, res) => {
     const {
       itemId,
       customerName,
-      customerContact,
       customerPhone,
       quantity,
       unitPrice,
@@ -41,7 +40,6 @@ export const createSale = async (req, res) => {
     };
 
     if (customerName !== undefined && customerName !== null) saleData.customerName = customerName;
-    if (customerContact !== undefined && customerContact !== null) saleData.customerContact = customerContact;
     if (customerPhone !== undefined && customerPhone !== null) saleData.customerPhone = customerPhone;
     if (image !== undefined && image !== null) saleData.image = image;
     if (paymentType !== undefined && paymentType !== null) saleData.paymentType = paymentType;
@@ -148,7 +146,7 @@ export const getSales = async (req, res) => {
           paymentType: true,
           borrowAmount: true,
           customerName: true,
-          customerContact: true,
+          customerPhone: true,
           item: { select: { name: true } },
           user: { select: { name: true } },
         },
@@ -181,7 +179,6 @@ export const updateSale = async (req, res) => {
     const {
       itemId,
       customerName,
-      customerContact,
       customerPhone,
       quantity,
       unitPrice,
@@ -220,7 +217,6 @@ export const updateSale = async (req, res) => {
     };
 
     if (customerName !== undefined && customerName !== null) updateData.customerName = customerName;
-    if (customerContact !== undefined && customerContact !== null) updateData.customerContact = customerContact;
     if (customerPhone !== undefined && customerPhone !== null) updateData.customerPhone = customerPhone;
     if (image !== undefined && image !== null) updateData.image = image;
     if (paymentType !== undefined && paymentType !== null) updateData.paymentType = paymentType;

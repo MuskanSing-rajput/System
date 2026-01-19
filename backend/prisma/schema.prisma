@@ -94,8 +94,7 @@ model Purchase {
   id              String   @id @default(cuid())
   userId          String
   itemId          String
-  supplierName    String
-  supplierContact String?
+  supplierName    String?
   supplierPhone   String?
   quantity        Float
   unitPrice       Float
@@ -113,8 +112,7 @@ model Sale {
   id              String   @id @default(cuid())
   userId          String
   itemId          String
-  customerName    String
-  customerContact String?
+  customerName    String?
   customerPhone   String?
   quantity        Float
   unitPrice       Float

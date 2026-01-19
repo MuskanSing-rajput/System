@@ -9,7 +9,6 @@ export const createPurchase = async (req, res) => {
       itemName,
       unit = "kg",
       supplierName,
-      supplierContact,
       supplierPhone,
       quantity,
       unitPrice,
@@ -104,7 +103,6 @@ export const createPurchase = async (req, res) => {
     };
 
     if (supplierName !== undefined && supplierName !== null) purchaseData.supplierName = supplierName;
-    if (supplierContact !== undefined && supplierContact !== null) purchaseData.supplierContact = supplierContact;
     if (supplierPhone !== undefined && supplierPhone !== null) purchaseData.supplierPhone = supplierPhone;
     if (image !== undefined && image !== null) purchaseData.image = image;
     if (paymentType !== undefined && paymentType !== null) purchaseData.paymentType = paymentType;
@@ -197,7 +195,7 @@ export const getPurchases = async (req, res) => {
           paymentType: true,
           borrowAmount: true,
           supplierName: true,
-          supplierContact: true,
+          supplierPhone: true,
           item: { select: { name: true } },
           user: { select: { name: true } },
         },
@@ -232,7 +230,6 @@ export const updatePurchase = async (req, res) => {
       itemName,
       unit = "kg",
       supplierName,
-      supplierContact,
       supplierPhone,
       quantity,
       unitPrice,
@@ -315,7 +312,6 @@ export const updatePurchase = async (req, res) => {
     };
 
     if (supplierName !== undefined && supplierName !== null) updateData.supplierName = supplierName;
-    if (supplierContact !== undefined && supplierContact !== null) updateData.supplierContact = supplierContact;
     if (supplierPhone !== undefined && supplierPhone !== null) updateData.supplierPhone = supplierPhone;
     if (image !== undefined && image !== null) updateData.image = image;
     if (paymentType !== undefined && paymentType !== null) updateData.paymentType = paymentType;
