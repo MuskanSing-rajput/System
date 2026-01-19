@@ -30,22 +30,24 @@ export const createSale = async (req, res) => {
     const price = Number.parseFloat(unitPrice)
     const when = saleDate ? new Date(saleDate) : new Date()
 
-    const sale = await prisma.sale.create({
-      data: {
-        itemId,
-        customerName,
-        customerContact,
-        customerPhone,
-        quantity: qty,
-        unitPrice: price,
-        totalAmount: qty * price,
-        saleDate: when,
-        image,
-        paymentType,
-        borrowAmount: paymentType === "borrow" ? borrowAmount : null,
-        userId: req.userId,
-      },
-    })
+    // Build data object and only include non-null/undefined fields
+    const saleData = {
+      itemId,
+      quantity: qty,
+      unitPrice: price,
+      totalAmount: qty * price,
+      saleDate: when,
+      userId: req.userId,
+    };
+
+    if (customerName !== undefined && customerName !== null) saleData.customerName = customerName;
+    if (customerContact !== undefined && customerContact !== null) saleData.customerContact = customerContact;
+    if (customerPhone !== undefined && customerPhone !== null) saleData.customerPhone = customerPhone;
+    if (image !== undefined && image !== null) saleData.image = image;
+    if (paymentType !== undefined && paymentType !== null) saleData.paymentType = paymentType;
+    if (paymentType === "borrow" && borrowAmount !== undefined && borrowAmount !== null) saleData.borrowAmount = borrowAmount;
+
+    const sale = await prisma.sale.create({ data: saleData });
 
     //  Decrease stock after sale
     await prisma.item.update({
@@ -209,21 +211,24 @@ export const updateSale = async (req, res) => {
       data: { stock: { increment: stockDiff } },
     })
 
+    const updateData = {
+      itemId: itemId || sale.itemId,
+      quantity: qty,
+      unitPrice: price,
+      totalAmount: qty * price,
+      saleDate: when,
+    };
+
+    if (customerName !== undefined && customerName !== null) updateData.customerName = customerName;
+    if (customerContact !== undefined && customerContact !== null) updateData.customerContact = customerContact;
+    if (customerPhone !== undefined && customerPhone !== null) updateData.customerPhone = customerPhone;
+    if (image !== undefined && image !== null) updateData.image = image;
+    if (paymentType !== undefined && paymentType !== null) updateData.paymentType = paymentType;
+    if (paymentType === "borrow" && borrowAmount !== undefined && borrowAmount !== null) updateData.borrowAmount = borrowAmount;
+
     const updated = await prisma.sale.update({
       where: { id },
-      data: {
-        itemId: itemId || sale.itemId,
-        customerName,
-        customerContact,
-        customerPhone,
-        quantity: qty,
-        unitPrice: price,
-        totalAmount: qty * price,
-        saleDate: when,
-        image,
-        paymentType,
-        borrowAmount: paymentType === "borrow" ? borrowAmount : null,
-      },
+      data: updateData,
       include: { item: true },
     })
 

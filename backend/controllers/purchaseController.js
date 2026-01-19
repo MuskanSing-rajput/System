@@ -93,23 +93,24 @@ export const createPurchase = async (req, res) => {
       });
     }
 
-    // ✔ Create purchase
-    const purchase = await prisma.purchase.create({
-      data: {
-        itemId: resolvedItemId,
-        supplierName,
-        supplierContact,
-        supplierPhone,
-        quantity: qty,
-        unitPrice: price,
-        totalAmount,
-        purchaseDate: new Date(purchaseDate || new Date()),
-        image,
-        paymentType,
-        borrowAmount: paymentType === "borrow" ? borrowAmount : null,
-        userId,
-      },
-    });
+    // ✔ Create purchase (only include fields that are not null/undefined)
+    const purchaseData = {
+      itemId: resolvedItemId,
+      quantity: qty,
+      unitPrice: price,
+      totalAmount,
+      purchaseDate: new Date(purchaseDate || new Date()),
+      userId,
+    };
+
+    if (supplierName !== undefined && supplierName !== null) purchaseData.supplierName = supplierName;
+    if (supplierContact !== undefined && supplierContact !== null) purchaseData.supplierContact = supplierContact;
+    if (supplierPhone !== undefined && supplierPhone !== null) purchaseData.supplierPhone = supplierPhone;
+    if (image !== undefined && image !== null) purchaseData.image = image;
+    if (paymentType !== undefined && paymentType !== null) purchaseData.paymentType = paymentType;
+    if (paymentType === "borrow" && borrowAmount !== undefined && borrowAmount !== null) purchaseData.borrowAmount = borrowAmount;
+
+    const purchase = await prisma.purchase.create({ data: purchaseData });
 
     // ✔ Update stock
     await prisma.item.update({
@@ -304,22 +305,25 @@ export const updatePurchase = async (req, res) => {
       },
     });
 
-    // FINAL UPDATE
+    // FINAL UPDATE (only include fields that are not null/undefined)
+    const updateData = {
+      itemId: resolvedItemId,
+      quantity: qty,
+      unitPrice: price,
+      totalAmount,
+      purchaseDate: dateUsed,
+    };
+
+    if (supplierName !== undefined && supplierName !== null) updateData.supplierName = supplierName;
+    if (supplierContact !== undefined && supplierContact !== null) updateData.supplierContact = supplierContact;
+    if (supplierPhone !== undefined && supplierPhone !== null) updateData.supplierPhone = supplierPhone;
+    if (image !== undefined && image !== null) updateData.image = image;
+    if (paymentType !== undefined && paymentType !== null) updateData.paymentType = paymentType;
+    if (paymentType === "borrow" && borrowAmount !== undefined && borrowAmount !== null) updateData.borrowAmount = borrowAmount;
+
     const updated = await prisma.purchase.update({
       where: { id },
-      data: {
-        itemId: resolvedItemId,
-        supplierName,
-        supplierContact,
-        supplierPhone,
-        quantity: qty,
-        unitPrice: price,
-        totalAmount,
-        purchaseDate: dateUsed,
-        image,
-        paymentType,
-        borrowAmount: paymentType === "borrow" ? borrowAmount : null,
-      },
+      data: updateData,
       include: {
         item: true,
         user: true,
