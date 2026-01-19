@@ -148,17 +148,21 @@ export const getPurchases = async (req, res) => {
       }
 
       // Apply date range filter if admin selected any date(s)
-      if (startDate) {
-        const startUTC = new Date(`${startDate}T00:00:00+05:30`);
-        const endUTC = endDate
-          ? new Date(`${endDate}T23:59:59+05:30`)
-          : new Date(`${startDate}T23:59:59+05:30`);
+        if (startDate) {
+          const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+          if (!dateRegex.test(startDate) || (endDate && !dateRegex.test(endDate))) {
+            return res.status(400).json({ error: "Invalid date parameters" });
+          }
+          const startUTC = new Date(`${startDate}T00:00:00+05:30`);
+          const endUTC = endDate
+            ? new Date(`${endDate}T23:59:59+05:30`)
+            : new Date(`${startDate}T23:59:59+05:30`);
 
-        where.purchaseDate = { gte: startUTC, lte: endUTC };
-      }
-      if (paymentType && paymentType !== "all") {
-        where.paymentType = paymentType
-      }
+          where.purchaseDate = { gte: startUTC, lte: endUTC };
+        }
+        if (paymentType && paymentType !== "all") {
+          where.paymentType = paymentType
+        }
     }
     //  Worker logic — always today's IST
     else {

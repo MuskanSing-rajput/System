@@ -61,7 +61,7 @@ export const createSale = async (req, res) => {
 
 export const getSales = async (req, res) => {
   try {
-    const { startDate, endDate, shopId, page = 1, limit = 100 } = req.query;
+    const { startDate, endDate, shopId, paymentType, page = 1, limit = 100 } = req.query;
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
 
     let where = {};
@@ -84,11 +84,16 @@ export const getSales = async (req, res) => {
     //  Date filter logic
     let startUTC, endUTC;
 
-    if (startDate && endDate) {
-      // If frontend provides range, respect that (IST → UTC)
-      startUTC = new Date(`${startDate}T00:00:00+05:30`);
-      endUTC = new Date(`${endDate}T23:59:59+05:30`);
-    } else {
+    try {
+      if (startDate && endDate) {
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
+          throw new Error("Invalid date format. Expected YYYY-MM-DD");
+        }
+        // If frontend provides range, respect that (IST → UTC)
+        startUTC = new Date(`${startDate}T00:00:00+05:30`);
+        endUTC = new Date(`${endDate}T23:59:59+05:30`);
+      } else {
       // Otherwise, default to today’s IST range
       const now = new Date();
       const todayIST = new Date(
@@ -104,6 +109,15 @@ export const getSales = async (req, res) => {
     }
 
     where.saleDate = { gte: startUTC, lte: endUTC };
+
+    // Apply paymentType filter when provided
+    if (paymentType && paymentType !== "all") {
+      where.paymentType = paymentType;
+    }
+    } catch (err) {
+      console.error("Invalid date params in getSales:", err);
+      return res.status(400).json({ error: "Invalid date parameters" });
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
 
