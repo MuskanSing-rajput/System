@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { X } from "lucide-react"
 import api from "../../../utils/api"
 import "./WorkerExpenseModal.css"
 
@@ -8,24 +9,23 @@ export default function WorkerExpenseModal({ onClose, onSuccess }) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
+  const [fundLoading, setFundLoading] = useState(true)
 
-
-   useEffect(() => {
+  useEffect(() => {
     fetchFund()
   }, [])
 
-  // Fetch current fund balance
-
-   const fetchFund = async () => {
-  try {
-    const { data } = await api.get("/funds")
-    setRemainingFund(data.currentRemaining || 0)
-  } catch (err) {
-    console.error("Error fetching balance:", err)
-    setRemainingFund(0)
+  const fetchFund = async () => {
+    try {
+      const { data } = await api.get("/funds")
+      setRemainingFund(data.currentRemaining || 0)
+    } catch (err) {
+      console.error("Error fetching balance:", err)
+      setRemainingFund(0)
+    } finally {
+      setFundLoading(false)
+    }
   }
-}
-
  
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -53,11 +53,11 @@ export default function WorkerExpenseModal({ onClose, onSuccess }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content2" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>×</button>
-        <h2>Worker Expense</h2>
+        <button className="close-btn" onClick={onClose}><X size={18} /></button>
+        <h2>Worker Expense (खर्च)</h2>
         <p className="fund-info">
-            {remainingFund === 0 ? "available balance..." : `Available Fund (उपलब्ध राशि): ₹${remainingFund.toFixed(2)}`}
-        </p><br/>
+          {fundLoading ? "Loading..." : `Available Fund (उपलब्ध राशि): ₹${remainingFund.toFixed(2)}`}
+        </p>
         <form onSubmit={handleSubmit} className="expense-form">
           <div className="form-group2">
             <label>Expense Title * (खर्च वस्तु)</label>
@@ -66,10 +66,10 @@ export default function WorkerExpenseModal({ onClose, onSuccess }) {
               name="title"
               value={formData.title}
               onChange={handleChange}
+              placeholder="Enter expense title (खर्च का शीर्षक)"
               required
             />
           </div>
-         <br/>
           <div className="form-group2">
             <label>Amount * (राशि)</label>
             <input
@@ -77,15 +77,16 @@ export default function WorkerExpenseModal({ onClose, onSuccess }) {
               name="amount"
               value={formData.amount}
               onChange={handleChange}
+              placeholder="Enter amount (राशि दर्ज करें)"
               required
             />
           </div>
 
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
-        <br/>
+
           <button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Add Expense"}
+            {loading ? "Saving..." : "📝 Add Expense"}
           </button>
         </form>
       </div>

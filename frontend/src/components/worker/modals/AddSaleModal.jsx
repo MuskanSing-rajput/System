@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { X } from "lucide-react"
 import api from "../../../utils/api"
 import "./AddSaleModal.css"
 
@@ -9,7 +10,8 @@ export default function AddSaleModal({ onClose }) {
     quantity: "",
     unitPrice: "",
     customer: "",
-    saleDate: "",
+    customerPhone: "",
+    saleDate: new Date().toISOString().split('T')[0],
     image: "",
     paymentType: "paid", 
     borrowAmount: "", 
@@ -21,18 +23,29 @@ export default function AddSaleModal({ onClose }) {
     fetchItems()
   }, [])
 
- const fetchItems = async () => {
-  try {
-    const { data } = await api.get("/items/item-name")
-    const uniqueItems = Array.from(
-      new Map(data.map((item) => [item.name, item])).values()
-    )
-    setItems(uniqueItems)
-  } catch (err) {
-    console.error("Error fetching items:", err)
+  const fetchItems = async () => {
+    try {
+      const { data } = await api.get("/items/item-name")
+      const uniqueItems = Array.from(
+        new Map(data.map((item) => [item.name, item])).values()
+      )
+      setItems(uniqueItems)
+    } catch (err) {
+      console.error("Error fetching items:", err)
+    }
   }
-}
 
+  // Get selected item details
+  const selectedItem = useMemo(() => {
+    return items.find(item => item.id === formData.itemId)
+  }, [items, formData.itemId])
+
+  // Calculate total amount
+  const totalAmount = useMemo(() => {
+    const qty = parseFloat(formData.quantity) || 0
+    const price = parseFloat(formData.unitPrice) || 0
+    return (qty * price).toFixed(2)
+  }, [formData.quantity, formData.unitPrice])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -52,70 +65,68 @@ export default function AddSaleModal({ onClose }) {
       reader.readAsDataURL(file)
     }
   }
-const handleSubmit = async (e) => {
-  e.preventDefault()
-  setLoading(true)
-  setError("")
 
-  try {
-    // parse numeric fields safely
-    const quantity = Number.parseFloat(formData.quantity) || 0
-    const unitPrice = Number.parseFloat(formData.unitPrice) || 0
-    const borrowAmountInput = formData.borrowAmount ? Number.parseFloat(formData.borrowAmount) : null
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
 
-    // validate required numeric inputs
-    if (!formData.itemId) {
-      throw new Error("Please select an item.")
-    }
-    if (!quantity || quantity <= 0) {
-      throw new Error("Please enter a valid quantity (> 0).")
-    }
-    if (!unitPrice || unitPrice <= 0) {
-      throw new Error("Please enter a valid unit price (> 0).")
-    }
-    if (!formData.saleDate) {
-      throw new Error("Please select a sale date.")
-    }
+    try {
+      const quantity = parseFloat(formData.quantity) || 0
+      const unitPrice = parseFloat(formData.unitPrice) || 0
+      const borrowAmountInput = formData.borrowAmount ? parseFloat(formData.borrowAmount) : null
 
-    // compute totals
-    const totalAmount = quantity * unitPrice
+      if (!formData.itemId) {
+        throw new Error("Please select an item.")
+      }
+      if (!quantity || quantity <= 0) {
+        throw new Error("Please enter a valid quantity (> 0).")
+      }
+      if (!unitPrice || unitPrice <= 0) {
+        throw new Error("Please enter a valid unit price (> 0).")
+      }
+      if (!formData.saleDate) {
+        throw new Error("Please select a sale date.")
+      }
 
-    const finalBorrowAmount =
-      formData.paymentType === "borrow"
-        ? borrowAmountInput !== null && !Number.isNaN(borrowAmountInput)
-          ? borrowAmountInput
-          : totalAmount
+      // Check stock availability
+      if (selectedItem && quantity > selectedItem.stock) {
+        throw new Error(`Insufficient stock! Available: ${selectedItem.stock} ${selectedItem.unit}`)
+      }
+
+      const total = quantity * unitPrice
+      const finalBorrowAmount = formData.paymentType === "borrow"
+        ? (borrowAmountInput !== null && !isNaN(borrowAmountInput) ? borrowAmountInput : total)
         : 0
 
-    // Build payload
-    const payload = {
-      itemId: formData.itemId,
-      quantity,
-      unitPrice,
-      customerName: formData.customer || null,
-      saleDate: formData.saleDate,
-      image: formData.image || null,
-      paymentType: formData.paymentType,
-      borrowAmount: finalBorrowAmount,
-      totalAmount,
+      const payload = {
+        itemId: formData.itemId,
+        quantity,
+        unitPrice,
+        customerName: formData.customer || null,
+        customerPhone: formData.customerPhone || null,
+        saleDate: formData.saleDate,
+        image: formData.image || null,
+        paymentType: formData.paymentType,
+        borrowAmount: finalBorrowAmount,
+        totalAmount: total,
+      }
+      
+      await api.post("/sales", payload)
+      onClose()
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || "Something went wrong")
+    } finally {
+      setLoading(false)
     }
-    await api.post("/sales", payload)
-    onClose()
-  } catch (err) {
-    setError(err.response?.data?.error || err.message || "Something went wrong")
-  } finally {
-    setLoading(false)
   }
-}
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Add Sale</h2>
-          <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
+          <h2>Add Sale (बिक्री)</h2>
+          <button className="close-btn" onClick={onClose}><X size={18} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
@@ -125,10 +136,15 @@ const handleSubmit = async (e) => {
               <option value="">Select an item</option>
               {items.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name} ({item.stock} {item.unit})
+                  {item.name} (Stock: {item.stock} {item.unit})
                 </option>
               ))}
             </select>
+            {/* {selectedItem && (
+              <small className="stock-info">
+                Available Stock: <strong>{selectedItem.stock} {selectedItem.unit}</strong>
+              </small>
+            )} */}
           </div>
 
           <div className="form-row">
@@ -140,6 +156,9 @@ const handleSubmit = async (e) => {
                 value={formData.quantity}
                 onChange={handleChange}
                 placeholder="Enter quantity"
+                min="0.01"
+                step="0.01"
+                max={selectedItem?.stock || ""}
                 required
               />
             </div>
@@ -152,37 +171,25 @@ const handleSubmit = async (e) => {
                 onChange={handleChange}
                 placeholder="Enter unit price"
                 step="0.01"
+                min="0"
                 required
               />
             </div>
-            <div className="form-group">
-    <label>Total Amount (₹) (कुल राशि)</label>
-    <input
-      type="number"
-      value={
-        (formData.quantity && formData.unitPrice)
-          ? (formData.quantity * formData.unitPrice).toFixed(2)
-          : ""
-      }
-      readOnly
-      placeholder="Auto-calculated"
-    />
-  </div>
           </div>
 
-           <div className="form-group">
+          <div className="form-group total-display">
+            <label>Total Amount (₹) (कुल राशि)</label>
+            <div className="total-value">₹{totalAmount}</div>
+          </div>
+
+          <div className="form-group">
             <label>Payment Type (भुगतान का प्रकार)</label>
-            <select
-              name="paymentType"
-              value={formData.paymentType}
-              onChange={handleChange}
-            >
-                <option value="paid">Paid (नगद)</option>
+            <select name="paymentType" value={formData.paymentType} onChange={handleChange}>
+              <option value="paid">Paid (नगद)</option>
               <option value="borrow">Borrow (उधार)</option>
             </select>
           </div>
 
-          {/* Borrow Amount Field (only show if "borrow" selected) */}
           {formData.paymentType === "borrow" && (
             <div className="form-group">
               <label>Borrow Amount (₹) (उधार राशि)</label>
@@ -191,20 +198,33 @@ const handleSubmit = async (e) => {
                 name="borrowAmount"
                 value={formData.borrowAmount}
                 onChange={handleChange}
-                placeholder="उधार ली गई राशि दर्ज करें (पूरी राशि के लिए खाली छोड़ दें)"
+                placeholder="उधार राशि (खाली = पूर्ण राशि)"
               />
             </div>
           )}
 
-          <div className="form-group">
-            <label>Customer (ग्राहक)</label>
-            <input
-              type="text"
-              name="customer"
-              value={formData.customer}
-              onChange={handleChange}
-              placeholder="Enter customer name"
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Customer Name (ग्राहक)</label>
+              <input
+                type="text"
+                name="customer"
+                value={formData.customer}
+                onChange={handleChange}
+                placeholder="Enter customer name"
+              />
+            </div>
+            <div className="form-group">
+              <label>Customer Phone (फ़ोन)</label>
+              <input
+                type="tel"
+                name="customerPhone"
+                value={formData.customerPhone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+                maxLength="10"
+              />
+            </div>
           </div>
 
           <div className="form-group">
@@ -218,11 +238,6 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Image/Receipt</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            {formData.image && <img src={formData.image} alt="Preview" style={{ width: 100, marginTop: 10 }} />}
-          </div>
   
           {error && <div className="error-message">{error}</div>}
 

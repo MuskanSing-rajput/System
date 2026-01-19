@@ -10,6 +10,7 @@ export const createPurchase = async (req, res) => {
       unit = "kg",
       supplierName,
       supplierContact,
+      supplierPhone,
       quantity,
       unitPrice,
       purchaseDate,
@@ -98,6 +99,7 @@ export const createPurchase = async (req, res) => {
         itemId: resolvedItemId,
         supplierName,
         supplierContact,
+        supplierPhone,
         quantity: qty,
         unitPrice: price,
         totalAmount,
@@ -189,6 +191,7 @@ export const getPurchases = async (req, res) => {
           paymentType: true,
           borrowAmount: true,
           supplierName: true,
+          supplierPhone: true,
           item: { select: { name: true } },
           user: { select: { name: true } },
         },
@@ -224,6 +227,7 @@ export const updatePurchase = async (req, res) => {
       unit = "kg",
       supplierName,
       supplierContact,
+      supplierPhone,
       quantity,
       unitPrice,
       purchaseDate,
@@ -302,6 +306,7 @@ export const updatePurchase = async (req, res) => {
         itemId: resolvedItemId,
         supplierName,
         supplierContact,
+        supplierPhone,
         quantity: qty,
         unitPrice: price,
         totalAmount,
@@ -379,16 +384,23 @@ export const payBorrowAmount = async (req, res) => {
       },
     });
 
-    // Update purchase to mark it paid
+    // Reduce borrow amount by paid amount
+    const newBorrowAmount = (purchase.borrowAmount || 0) - amount;
+    
+    // Update purchase: reduce borrow amount, mark paid only if fully paid
     const updated = await prisma.purchase.update({
       where: { id },
       data: {
-        borrowAmount: 0,
-        paymentType: "paid",
+        borrowAmount: Math.max(0, newBorrowAmount),
+        paymentType: newBorrowAmount <= 0 ? "paid" : "borrow",
       },
     });
 
-    res.json({ message: "Borrow amount paid successfully", updated });
+    res.json({ 
+      message: newBorrowAmount <= 0 ? "Fully paid" : "Partial payment recorded", 
+      updated,
+      remainingBorrow: Math.max(0, newBorrowAmount)
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

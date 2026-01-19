@@ -2,6 +2,7 @@ import { useState } from "react"
 import ViewInventory from "./inventory/ViewInventory"
 import ViewPurchases from "./inventory/ViewPurchases"
 import ViewSales from "./inventory/ViewSales"
+import ViewBorrowers from "./inventory/ViewBorrowers"
 import "./InventoryTabs.css"
 
 export default function InventoryTabs() {
@@ -25,12 +26,19 @@ export default function InventoryTabs() {
         >
           Inventory
         </button>
+        <button
+          className={`tab-btn ${activeTab === "borrowers" ? "active" : ""}`}
+          onClick={() => setActiveTab("borrowers")}
+        >
+          Borrowers
+        </button>
       </div>
 
       <div className="tab-content">
         {activeTab === "inventory" && <ViewInventory />}
         {activeTab === "purchases" && <ViewPurchases />}
         {activeTab === "sales" && <ViewSales />}
+        {activeTab === "borrowers" && <ViewBorrowers />}
       </div>
     </div>
   )

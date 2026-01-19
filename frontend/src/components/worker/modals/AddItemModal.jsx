@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { X } from "lucide-react"
 import api from "../../../utils/api"
 import "./AddItemModal.css"
 
@@ -8,6 +9,7 @@ export default function AddItemModal({ onClose, onSuccess }) {
     description: "",
     category: "",
     unit: "kg",
+    stock: 0,
     minStock: 0,
     image: "",
   })
@@ -15,7 +17,12 @@ export default function AddItemModal({ onClose, onSuccess }) {
   const [error, setError] = useState("")
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value, type } = e.target
+    if (type === "number") {
+      setFormData({ ...formData, [name]: value === "" ? "" : Number(value) })
+    } else {
+      setFormData({ ...formData, [name]: value })
+    }
   }
 
   const handleImageChange = (e) => {
@@ -49,10 +56,8 @@ export default function AddItemModal({ onClose, onSuccess }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Add New Item</h2>
-           <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
+          <h2>Add New Item (नया माल)</h2>
+          <button className="close-btn" onClick={onClose}><X size={18} /></button>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -61,16 +66,21 @@ export default function AddItemModal({ onClose, onSuccess }) {
           <input
             type="text"
             name="name"
-            placeholder="Item Name"
+            placeholder="Item Name (माल का नाम)"
             value={formData.name}
             onChange={handleChange}
             required
           />
-          <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} />
+          <textarea 
+            name="description" 
+            placeholder="Description (विवरण)" 
+            value={formData.description} 
+            onChange={handleChange} 
+          />
           <input
             type="text"
             name="category"
-            placeholder="Category"
+            placeholder="Category (श्रेणी)"
             value={formData.category}
             onChange={handleChange}
             required
@@ -84,19 +94,20 @@ export default function AddItemModal({ onClose, onSuccess }) {
           </select>
           <input
             type="number"
-            name="minStock"
-            placeholder="Minimum Stock"
-            value={formData.minStock}
+            name="stock"
+            placeholder="Initial Stock"
+            value={formData.stock}
             onChange={handleChange}
+            step="any"
           />
           <input type="file" accept="image/*" onChange={handleImageChange} />
           <div className="modal-actions">
             <button type="button" className="btn-cancel" onClick={onClose}>
               Cancel
             </button>
-          <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? "Adding..." : "Add Item"}
-          </button>
+            <button type="submit" className="btn-submit" disabled={loading}>
+              {loading ? "Adding..." : "Add Item"}
+            </button>
           </div>
         </form>
       </div>

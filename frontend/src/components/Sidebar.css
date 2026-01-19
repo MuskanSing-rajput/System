@@ -1,76 +1,97 @@
 .sidebar {
-  width: 250px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  width: 260px;
+  background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 20px rgba(99, 102, 241, 0.15);
 }
 
 .sidebar-header {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
   text-align: center;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 20px;
 }
 
 .menu-btn {
   display: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
   cursor: pointer;
+  border-radius: 8px;
+  padding: 8px;
+  transition: all 0.2s ease;
+}
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .sidebar-header h2 {
-  font-size: 24px;
-  margin-bottom: 5px;
+  font-size: 28px;
+  margin-bottom: 6px;
+  color: #fff;
+  font-weight: 800;
 }
 
 .sidebar-header p {
   font-size: 12px;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .sidebar-nav {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .nav-item {
-  padding: 12px 15px;
-  color: white;
+  padding: 14px 18px;
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  border-radius: 5px;
-  transition: all 0.3s;
-  display: block;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 15px;
 }
 
-.nav-item:hover,
-.nav-item.active {
+.nav-item:hover {
   background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .logout-btn {
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid white;
-  border-radius: 5px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s;
+  font-weight: 600;
+  transition: all 0.2s ease;
   width: 100%;
-  text-align: left;
-  font-size: inherit;
+  text-align: center;
+  font-size: 15px;
 }
 
 .logout-btn:hover {
-  background: white;
-  color: #0369a1;
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .desktop-logout {
@@ -88,30 +109,30 @@
   .sidebar {
     width: 100%;
     flex-direction: column;
-    padding: 12px;
+    padding: 16px;
     position: relative;
   }
 
   .sidebar-header {
-    margin-bottom: 15px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 16px;
   }
 
   .sidebar-header h2 {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .sidebar-nav {
     flex-direction: column;
     flex: 1;
     margin: 0;
-    gap: 8px;
+    gap: 6px;
     display: none;
   }
 
   .nav-item {
-    padding: 10px 12px;
+    padding: 12px 14px;
     font-size: 14px;
   }
 
@@ -123,7 +144,6 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
   }
 
   .desktop-logout {
@@ -138,15 +158,15 @@
 
 @media (max-width: 480px) {
   .sidebar {
-    padding: 10px;
+    padding: 12px;
   }
 
   .sidebar-header h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .nav-item {
-    padding: 8px 10px;
+    padding: 10px 12px;
     font-size: 13px;
   }
 }

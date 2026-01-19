@@ -7,6 +7,7 @@ export const createSale = async (req, res) => {
       itemId,
       customerName,
       customerContact,
+      customerPhone,
       quantity,
       unitPrice,
       saleDate,
@@ -16,11 +17,16 @@ export const createSale = async (req, res) => {
     } = req.body
 
     const item = await prisma.item.findUnique({ where: { id: itemId } })
-    if (!item || item.stock < quantity) {
-      return res.status(400).json({ error: "Insufficient stock" })
+    if (!item) {
+      return res.status(400).json({ error: "Item not found" })
+    }
+    
+    const qty = Number.parseFloat(quantity)
+    
+    if (item.stock < qty) {
+      return res.status(400).json({ error: `Insufficient stock. Available: ${item.stock}, Requested: ${qty}` })
     }
 
-    const qty = Number.parseFloat(quantity)
     const price = Number.parseFloat(unitPrice)
     const when = saleDate ? new Date(saleDate) : new Date()
 
@@ -29,6 +35,7 @@ export const createSale = async (req, res) => {
         itemId,
         customerName,
         customerContact,
+        customerPhone,
         quantity: qty,
         unitPrice: price,
         totalAmount: qty * price,
@@ -112,6 +119,7 @@ export const getSales = async (req, res) => {
           paymentType: true,
           borrowAmount: true,
           customerName: true,
+          customerPhone: true,
           item: { select: { name: true } },
           user: { select: { name: true } },
         },
@@ -145,6 +153,7 @@ export const updateSale = async (req, res) => {
       itemId,
       customerName,
       customerContact,
+      customerPhone,
       quantity,
       unitPrice,
       saleDate,
@@ -179,6 +188,7 @@ export const updateSale = async (req, res) => {
         itemId: itemId || sale.itemId,
         customerName,
         customerContact,
+        customerPhone,
         quantity: qty,
         unitPrice: price,
         totalAmount: qty * price,
@@ -214,16 +224,23 @@ export const payBorrowSale = async (req, res) => {
       return res.status(400).json({ error: "This sale is not a borrow" });
     }
 
-    // Update the sale record
+    // Reduce borrow amount by paid amount
+    const newBorrowAmount = (sale.borrowAmount || 0) - amount;
+
+    // Update the sale record: reduce borrow, mark paid only if fully paid
     const updated = await prisma.sale.update({
       where: { id },
       data: {
-        paymentType: "paid",
-        borrowAmount: 0,
+        paymentType: newBorrowAmount <= 0 ? "paid" : "borrow",
+        borrowAmount: Math.max(0, newBorrowAmount),
       },
     });
 
-    res.json({ message: "Borrow amount paid successfully", updated });
+    res.json({ 
+      message: newBorrowAmount <= 0 ? "Fully paid" : "Partial payment recorded", 
+      updated,
+      remainingBorrow: Math.max(0, newBorrowAmount)
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

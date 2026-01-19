@@ -1,0 +1,33 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+}
+
+.page-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #1f2937;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-btn.active {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+
+.page-btn.dots {
+  cursor: default;
+  border: none;
+  background: transparent;
+}

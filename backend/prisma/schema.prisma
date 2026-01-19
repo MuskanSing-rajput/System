@@ -96,6 +96,7 @@ model Purchase {
   itemId          String
   supplierName    String
   supplierContact String?
+  supplierPhone   String?
   quantity        Float
   unitPrice       Float
   totalAmount     Float
@@ -114,6 +115,7 @@ model Sale {
   itemId          String
   customerName    String
   customerContact String?
+  customerPhone   String?
   quantity        Float
   unitPrice       Float
   totalAmount     Float

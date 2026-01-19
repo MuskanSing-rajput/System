@@ -7,6 +7,8 @@ import Attendance from "./pages/Attendance";
 import Expenses from "./pages/Expenses";
 import Reports from "./pages/Reports";
 import AllShopsData from "./pages/AllShopsData";
+import Borrowers from "./pages/Borrowers";
+import Stock from "./pages/Stock";
 import Sidebar from "./components/Sidebar";
 import "./App.css";
 
@@ -55,6 +57,8 @@ export default function App() {
                   <Route path="/expenses" element={<Expenses />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/all-shops" element={<AllShopsData />} />
+                  <Route path="/borrowers" element={<Borrowers />} />
+                  <Route path="/stock" element={<Stock />} />
                   <Route path="/" element={<Navigate to="/dashboard" />} />
                 </Routes>
               </div>

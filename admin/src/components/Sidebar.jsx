@@ -50,6 +50,12 @@ export default function Sidebar({ user, setIsAuthenticated }) {
           <a href="/reports" className="nav-link">
             Reports
           </a>
+          <a href="/borrowers" className="nav-link">
+            Borrowers
+          </a>
+          <a href="/stock" className="nav-link">
+            Stock
+          </a>
           <a href="/all-shops" className="nav-link">
             All Shops Data
           </a>

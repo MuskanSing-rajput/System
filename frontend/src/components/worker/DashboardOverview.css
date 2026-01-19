@@ -1,14 +1,14 @@
 .overview-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
-/* Added quick action buttons section */
+/* Quick action buttons section */
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
 }
 
 .action-btn {
@@ -16,79 +16,88 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px;
+  gap: 10px;
+  padding: 20px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   font-size: 14px;
   color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn b {
+  font-size: 11px;
+  opacity: 0.9;
 }
 
 .add-item-btn {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
 }
 
 .add-item-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.3);
 }
 
 .add-amount-btn {
-  background: linear-gradient(135deg, #e66c4d 0%, #be395a 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .add-amount-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(212, 42, 8, 0.4);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
 }
 
 .add-purchase-btn {
-  background: linear-gradient(135deg, #cb509c 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 }
 
 .add-purchase-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(245, 87, 108, 0.4);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
 }
 
 .add-sale-btn {
-  background: linear-gradient(135deg, #d666ea 0%, #840d7a 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 }
 
 .add-sale-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(79, 172, 254, 0.4);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
 }
 
 .add-expenses-btn {
-  background: linear-gradient(135deg, #f2b543 0%, #b55a0f 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
 .add-expenses-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(245, 87, 108, 0.4);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
 }
 
 .btn-icon {
-  font-size: 24px;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
 .stat-card {
-  background: white;
-  border: 1px solid #eee;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  border-radius: 16px;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card.clickable {
@@ -96,64 +105,75 @@
 }
 
 .stat-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
 }
 
 .stat-card.clickable:hover {
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.2);
-  border-color: #0ea5e9;
+  border-color: #6366f1;
 }
 
-/* Updated stat card styling with better hierarchy */
 .stat-card.sales {
-  border-left: 4px solid #4facfe;
+  border-left: 4px solid #6366f1;
 }
 
 .stat-card.purchases {
-  border-left: 4px solid #f5576c;
+  border-left: 4px solid #f59e0b;
 }
 
 .stat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .stat-header h3 {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: #64748b;
   margin: 0;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stat-icon {
-  font-size: 24px;
+  color: #94a3b8;
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 4px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #999;
+  font-size: 13px;
+  color: #64748b;
   margin: 0;
 }
 
+.stat-extra {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 8px;
+}
+
+.stat-extra b {
+  color: #10b981;
+}
+
 .refresh-btn {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   align-self: flex-start;
   font-size: 14px;
   display: inline-flex;
@@ -162,13 +182,13 @@
 
 .refresh-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
 }
 
 .loading {
   text-align: center;
-  padding: 40px;
-  color: #666;
+  padding: 60px;
+  color: #64748b;
   font-size: 16px;
 }
 
@@ -184,20 +204,21 @@
 
 @media (max-width: 480px) {
   .overview-container {
-    gap: 16px;
+    gap: 20px;
   }
 
   .quick-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
 
   .action-btn {
-    padding: 14px;
-    font-size: 13px;
+    padding: 16px 12px;
+    font-size: 12px;
   }
 
   .btn-icon {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .stats-grid {
@@ -205,18 +226,18 @@
   }
 
   .stat-card {
-    padding: 16px;
+    padding: 20px;
   }
 
   .stat-value {
-    font-size: 24px;
+    font-size: 26px;
   }
 
   .stat-header h3 {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .stat-label {
-    font-size: 11px;
+    font-size: 12px;
   }
 }

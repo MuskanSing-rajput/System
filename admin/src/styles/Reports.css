@@ -112,6 +112,9 @@
 .fund-table tr:hover{
   background-color: #022837;
 }
+.fund-table tr:hover{
+  color: white !important;
+}
 .fund-table th{
   background-color: #046d96;
 }
@@ -180,6 +183,7 @@
 
 .fund-table tr:hover {
   background-color: #022837;
+  color: white;
 }
 
 /* Mobile friendly */
@@ -191,4 +195,9 @@
 
 .table-wrapper td{
   color: black;
+}
+
+/* Ensure hovered fund-table rows show white text for all cells */
+.fund-table tr:hover td {
+  color: white !important;
 }

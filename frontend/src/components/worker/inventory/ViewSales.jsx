@@ -1,123 +1,141 @@
 import { useState, useEffect } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
 import api from "../../../utils/api"
 import ImageModal from "../../../components/ImageModal"
+import PayBorrowModal from "../modals/PayBorrowModal"
 import "./ViewSales.css"
+import Pagination from "../../../components/Pagination"
 
 export default function ViewSales() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [sales, setSales] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
+  const [payBorrowModal, setPayBorrowModal] = useState(null)
+  const [page, setPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
     fetchSales()
   }, [])
 
-const fetchSales = async () => {
-  try {
-    setLoading(true)
-    const { data } = await api.get("/sales")
-    const salesArray = Array.isArray(data)
-      ? data
-      : Array.isArray(data.data)
-      ? data.data
-      : []
-
-    setSales(salesArray)
-  } catch (error) {
-    console.error("Error fetching sales:", error)
-    setSales([])
-  } finally {
-    setLoading(false)
+  const fetchSales = async () => {
+    setInitialLoading(true)
+    try {
+      const { data } = await api.get("/sales")
+      const salesArray = Array.isArray(data)
+        ? data
+        : Array.isArray(data.data)
+        ? data.data
+        : []
+      setSales(salesArray)
+    } catch (error) {
+      console.error("Error fetching sales:", error)
+      setSales([])
+    } finally {
+      setInitialLoading(false)
+    }
   }
-}
 
-const handlePayBorrowSale = async (id, amount) => {
-  if (!window.confirm(`Mark ₹${amount} as paid?`)) return;
-
-  try {
-    await api.put(`/sales/${id}/pay-borrow`, { amount });
-    alert("Borrow amount marked as paid successfully!");
-    fetchSales(); // reload updated list
-  } catch (error) {
-    alert(error.response?.data?.error || "Error updating sale");
-  }
-};
-
+  const handlePayBorrowSale = async (amount) => {
+    if (!payBorrowModal) return;
+    try {
+      await api.put(`/sales/${payBorrowModal.id}/pay-borrow`, { amount });
+      alert("Payment recorded successfully!");
+      setPayBorrowModal(null);
+      fetchSales();
+    } catch (error) {
+      alert(error.response?.data?.error || "Error updating sale");
+    }
+  };
 
   return (
     <div className="sales-container">
-      <h2>Sales History</h2>
-     {loading ? (
-       <div className="loading-spinner-container">
-        <div className="spinner"></div>
-        <p>Loading sales...</p>
+      <div className="page-header">
+        {location.pathname !== "/worker-dashboard" && (
+          <button className="back-btn" onClick={() => navigate("/worker-dashboard")}>
+            <ArrowLeft size={20} /> Back to Dashboard
+          </button>
+        )}
+        <h2>Sales History - Today (आज की बिक्री)</h2>
       </div>
-      ) : sales.length === 0 ? (
-        <div className="empty-state">No sales found</div>
+      {sales.length === 0 ? (
+        initialLoading ? (
+          <div className="small-wait">Wait ...</div>
+        ) : (
+          <div className="empty-state">
+            <div className="empty-icon">📊</div>
+            <p>No sales found for today</p>
+            <span>आज कोई बिक्री नहीं हुई</span>
+          </div>
+        )
       ) : (
-        <div className="table-responsive">
-          <table className="sales-table">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Item</th>
-                <th>Customer</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total</th>
-                <th>Payment Type</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.map((sale) => (
-                <tr key={sale.id}>
+        <>
+          <div className="table-responsive">
+            <table className="sales-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Qty</th>
+                  <th>Rate</th>
+                  <th>Total</th>
+                  <th>Payment Type</th>
+                  {/* <th>Payment Type</th> */}
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales
+                  .slice((page - 1) * pageSize, page * pageSize)
+                  .map((sale) => (
+                    <tr key={sale.id}>
+                      <td><strong>{sale.item?.name || "-"}</strong></td>
+                      <td>{sale.customerName || "-"}</td>
+                      <td>{sale.customerPhone || "-"}</td>
+                  <td>{sale.customerPhone || "-"}</td>
+                  <td>{sale.quantity} kg</td>
+                  {/* <td>₹{sale.unitPrice?.toFixed(2)}</td> */}
+                  <td><strong>₹{sale.totalAmount?.toFixed(2)}</strong></td>
                   <td>
-                    {sale.image ? (
-                      <img
-                        src={sale.image}
-                        alt={sale.item?.name}
-                        className="sale-image clickable-image"
-                        onClick={() => setSelectedImage(sale.image)}
-                        title="Click to view full image"
-                      />
+                    {sale.paymentType === "borrow" ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#f59e0b' }}>₹{sale.borrowAmount} (उधार)</span>
+                        <button onClick={() => setPayBorrowModal({ id: sale.id, amount: sale.borrowAmount })} className="btn-pay">
+                          Pay
+                        </button>
+                      </span>
                     ) : (
-                      <div className="no-image">No Image</div>
+                      <span style={{ color: '#10b981' }}>✓ Paid (नकद)</span>
                     )}
                   </td>
-                  <td>{sale.item?.name || "-"}</td>
-                  <td>{sale.customerName}</td>
-                  <td>{sale.quantity} kg</td>
-                  <td>₹{sale.unitPrice?.toFixed(2)}</td>
-                  <td>₹{sale.totalAmount?.toFixed(2)}</td>
-                 {/* <td>
-                  {sale.paymentType === "borrow"
-                    ? "borrow (उधार)"
-                    : "paid (नकद)"}
-                </td> */}
-                <td>
-            {sale.paymentType === "borrow" ? (
-              <>
-                <span>{sale.borrowAmount} ₹ (उधार)</span>&nbsp;
-                <button
-                  onClick={() => handlePayBorrowSale(sale.id, sale.borrowAmount)}
-                  className="btn-pay"
-                >
-                  Pay
-                </button>
-              </>
-            ) : (
-              <span>(नकद)</span>
-            )}
-          </td>
-                  <td>{new Date(sale.saleDate).toLocaleDateString()}</td>
+                  <td>{new Date(sale.saleDate).toLocaleDateString('en-IN')}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
+
+          <Pagination
+            totalItems={sales.length}
+            pageSize={pageSize}
+            currentPage={page}
+            onPageChange={(p) => setPage(p)}
+          />
+        </>
       )}
       {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
+      {payBorrowModal && (
+        <PayBorrowModal
+          type="sale"
+          borrowAmount={payBorrowModal.amount}
+          onClose={() => setPayBorrowModal(null)}
+          onPay={handlePayBorrowSale}
+        />
+      )}
     </div>
   )
 }

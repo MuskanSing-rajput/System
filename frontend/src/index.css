@@ -4,12 +4,32 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
 html,
 body {
   height: 100%;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -24,4 +44,69 @@ input,
 textarea,
 select {
   font-family: inherit;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Global Loading Spinner */
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner-container p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Button Pay */
+.btn-pay {
+  padding: 6px 12px;
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-pay:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }

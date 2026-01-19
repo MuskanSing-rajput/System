@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { X } from "lucide-react"
 import api from "../../../utils/api"
 import "./AddAmountModal.css"
 
@@ -25,7 +26,7 @@ export default function AddAmountModal({ onClose, onSuccess }) {
       await api.post("/funds", formData)
       setSuccess("Amount successfully added!")
       setFormData({ amount: "", givenBy: "" })
-      if (onSuccess) onSuccess() // refresh balance immediately
+      if (onSuccess) onSuccess()
       setTimeout(onClose, 1000)
     } catch (err) {
       setError(err.response?.data?.error || err.message)
@@ -37,8 +38,8 @@ export default function AddAmountModal({ onClose, onSuccess }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content2" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>×</button>
-        <h2>Add Amount</h2>
+        <button className="close-btn" onClick={onClose}><X size={18} /></button>
+        <h2>Add Amount (राशि जोड़ें)</h2>
         <form onSubmit={handleSubmit} className="add-amount-form">
           <div className="form-group2">
             <label>Amount * (रुपया)</label>
@@ -47,6 +48,7 @@ export default function AddAmountModal({ onClose, onSuccess }) {
               name="amount"
               value={formData.amount}
               onChange={handleChange}
+              placeholder="Enter amount (राशि दर्ज करें)"
               required
             />
           </div>
@@ -57,6 +59,7 @@ export default function AddAmountModal({ onClose, onSuccess }) {
               name="givenBy"
               value={formData.givenBy}
               onChange={handleChange}
+              placeholder="Name of person (व्यक्ति का नाम)"
             />
           </div>
 
@@ -64,7 +67,7 @@ export default function AddAmountModal({ onClose, onSuccess }) {
           {success && <p className="success">{success}</p>}
 
           <button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Add"}
+            {loading ? "Saving..." : "Add Amount"}
           </button>
         </form>
       </div>

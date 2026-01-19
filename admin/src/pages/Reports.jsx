@@ -1,6 +1,7 @@
 import { useState } from "react"
 import api from "../utils/api"
 import "../styles/Reports.css"
+import Pagination from "../components/Pagination"
 
 export default function Reports() {
   const [startDate, setStartDate] = useState(
@@ -120,85 +121,102 @@ export default function Reports() {
 
     {/* Owner Fund Details */}
 {reportData?.fundDetails && reportData.fundDetails.transactions?.length > 0 && (
-  <div className="report-card fund">
-    <h3>Funds Given by Owner</h3>
-    <p className="amount">
-      ₹{reportData.fundDetails.totalFundsGiven?.toLocaleString() || 0}
-    </p>
-    <p className="count">{reportData.fundDetails.count} transactions</p>
-<div className="table-wrapper">
-    <table className="fund-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Shop ID</th>
-          <th>Given By</th>
-          <th>Amount (₹)</th>
-          <th>Bachat (₹)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reportData.fundDetails.transactions.map((t) => {
-          const dateObj = new Date(t.date)
-          return (
-            <tr key={t.id}>
-              <td>{dateObj.toLocaleDateString()}</td>
-              <td>
-                {dateObj.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-              </td>
-              <td>{t.shopId || "-"}</td>
-              <td>{t.givenBy}</td>
-              <td>₹{t.givenAmount.toLocaleString()}</td>
-              <td>₹{t.remainingAmount?.toLocaleString() || 0}</td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-    </div>
-  </div>
+  <FundTable reportData={reportData} />
 )}
 
 {/* Worker Expense Details */}
 {reportData?.workerExpenseDetails && reportData.workerExpenseDetails.transactions?.length > 0 && (
-  <div className="report-card fund">
-    <h3>Worker Expenses</h3>
-    <p className="amount">₹{reportData.workerExpenseDetails.totalWorkerExpenses?.toLocaleString() || 0}</p>
-    <p className="count">{reportData.workerExpenseDetails.count} transactions</p>
-
- <div className="table-wrapper">
-    <table className="fund-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Worker Name</th>
-          <th>Title</th>
-          <th>Amount (₹)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reportData.workerExpenseDetails.transactions.map((t) => {
-          const dateObj = new Date(t.date)
-          return (
-            <tr key={t.id}>
-              <td>{dateObj.toLocaleDateString()}</td>
-              <td>{t.workerName}</td>
-              <td>{t.title}</td>
-              <td>₹{t.amount.toLocaleString()}</td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-    </div>
-  </div>
+  <WorkerExpenseTable reportData={reportData} />
 )}
 
+    </div>
+  )
+}
+
+function FundTable({ reportData }) {
+  const [page, setPage] = useState(1)
+  const pageSize = 11
+  const transactions = reportData.fundDetails.transactions || []
+  return (
+    <div className="report-card fund">
+      <h3>Funds Given by Owner</h3>
+      <p className="amount">₹{reportData.fundDetails.totalFundsGiven?.toLocaleString() || 0}</p>
+      <p className="count">{reportData.fundDetails.count} transactions</p>
+      <div className="table-wrapper">
+        <table className="fund-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Shop ID</th>
+              <th>Given By</th>
+              <th>Amount (₹)</th>
+              <th>Bachat (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.slice((page - 1) * pageSize, page * pageSize).map((t) => {
+              const dateObj = new Date(t.date)
+              return (
+                <tr key={t.id}>
+                  <td>{dateObj.toLocaleDateString()}</td>
+                  <td>
+                    {dateObj.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </td>
+                  <td>{t.shopId || "-"}</td>
+                  <td>{t.givenBy}</td>
+                  <td>₹{t.givenAmount.toLocaleString()}</td>
+                  <td>₹{t.remainingAmount?.toLocaleString() || 0}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Pagination totalItems={transactions.length} pageSize={pageSize} currentPage={page} onPageChange={setPage} />
+    </div>
+  )
+}
+
+function WorkerExpenseTable({ reportData }) {
+  const [page, setPage] = useState(1)
+  const pageSize = 11
+  const transactions = reportData.workerExpenseDetails.transactions || []
+  return (
+    <div className="report-card fund">
+      <h3>Worker Expenses</h3>
+      <p className="amount">₹{reportData.workerExpenseDetails.totalWorkerExpenses?.toLocaleString() || 0}</p>
+      <p className="count">{reportData.workerExpenseDetails.count} transactions</p>
+      <div className="table-wrapper">
+        <table className="fund-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Worker Name</th>
+              <th>Title</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.slice((page - 1) * pageSize, page * pageSize).map((t) => {
+              const dateObj = new Date(t.date)
+              return (
+                <tr key={t.id}>
+                  <td>{dateObj.toLocaleDateString()}</td>
+                  <td>{t.workerName}</td>
+                  <td>{t.title}</td>
+                  <td>₹{t.amount.toLocaleString()}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Pagination totalItems={transactions.length} pageSize={pageSize} currentPage={page} onPageChange={setPage} />
     </div>
   )
 }

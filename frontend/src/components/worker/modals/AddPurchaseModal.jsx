@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { X } from "lucide-react"
 import api from "../../../utils/api"
 import "./AddPurchaseModal.css"
 
@@ -8,6 +9,7 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
     quantity: "",
     unitPrice: "",
     supplier: "",
+    supplierPhone: "",
     unit: "kg",
     image: "",
     paymentType: "paid", 
@@ -16,6 +18,13 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Calculate total amount
+  const totalAmount = useMemo(() => {
+    const qty = parseFloat(formData.quantity) || 0
+    const price = parseFloat(formData.unitPrice) || 0
+    return (qty * price).toFixed(2)
+  }, [formData.quantity, formData.unitPrice])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -44,25 +53,25 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
     try {
       const baseQuantity =
         formData.unit === "gram"
-          ? Number.parseFloat(formData.quantity) / 1000
-          : Number.parseFloat(formData.quantity)
+          ? parseFloat(formData.quantity) / 1000
+          : parseFloat(formData.quantity)
 
-      const totalAmount = baseQuantity * Number.parseFloat(formData.unitPrice)
+      const total = baseQuantity * parseFloat(formData.unitPrice)
 
-      // If borrow is selected and no amount entered → full amount is borrowed
       const finalBorrowAmount =
         formData.paymentType === "borrow"
           ? formData.borrowAmount
-            ? Number.parseFloat(formData.borrowAmount)
-            : totalAmount
+            ? parseFloat(formData.borrowAmount)
+            : total
           : 0
 
       await api.post("/purchases", {
         itemName: formData.itemName,
         unit: formData.unit,
         quantity: baseQuantity,
-        unitPrice: Number.parseFloat(formData.unitPrice),
+        unitPrice: parseFloat(formData.unitPrice),
         supplierName: formData.supplier,
+        supplierPhone: formData.supplierPhone || null,
         image: formData.image,
         paymentType: formData.paymentType,
         borrowAmount: finalBorrowAmount,
@@ -80,10 +89,8 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Add Purchase</h2>
-          <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
+          <h2>Add Purchase (खरीद)</h2>
+          <button className="close-btn" onClick={onClose}><X size={18} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
@@ -99,69 +106,56 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
             />
           </div>
 
-      <div className="form-row">
-  <div className="form-group">
-    <label>Quantity * (मात्रा)</label>
-    <input
-      type="number"
-      name="quantity"
-      value={formData.quantity}
-      onChange={handleChange}
-      placeholder="Enter quantity"
-      required
-    />
-  </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Quantity * (मात्रा)</label>
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                placeholder="Enter quantity"
+                min="0.01"
+                step="0.01"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Unit (इकाई)</label>
+              <select name="unit" value={formData.unit} onChange={handleChange}>
+                <option value="kg">kg</option>
+              </select>
+            </div>
+          </div>
 
-  <div className="form-group">
-    <label>Unit (इकाई)</label>
-    <select name="unit" value={formData.unit} onChange={handleChange}>
-      <option value="kg">kg</option>
-    </select>
-  </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Unit Price (₹) * (इकाई मूल्य)</label>
+              <input
+                type="number"
+                name="unitPrice"
+                value={formData.unitPrice}
+                onChange={handleChange}
+                placeholder="Enter unit price"
+                step="0.01"
+                min="0"
+                required
+              />
+            </div>
+            <div className="form-group total-display">
+              <label>Total Amount (₹)</label>
+              <div className="total-value">₹{totalAmount}</div>
+            </div>
+          </div>
 
-  <div className="form-group">
-    <label>Unit Price (₹) * (इकाई मूल्य)</label>
-    <input
-      type="number"
-      name="unitPrice"
-      value={formData.unitPrice}
-      onChange={handleChange}
-      placeholder="Enter unit price"
-      step="0.01"
-      required
-    />
-  </div>
-
-  {/* ✅ New read-only total amount field */}
-  <div className="form-group">
-    <label>Total Amount (₹) (कुल राशि)</label>
-    <input
-      type="number"
-      value={
-        (formData.quantity && formData.unitPrice)
-          ? (formData.quantity * formData.unitPrice).toFixed(2)
-          : ""
-      }
-      readOnly
-      placeholder="Auto-calculated"
-    />
-  </div>
-</div>
-
-            {/* Payment Type */}
           <div className="form-group">
             <label>Payment Type (भुगतान का प्रकार)</label>
-            <select
-              name="paymentType"
-              value={formData.paymentType}
-              onChange={handleChange}
-            >
+            <select name="paymentType" value={formData.paymentType} onChange={handleChange}>
               <option value="paid">Paid (नगद)</option>
               <option value="borrow">Borrow (उधार)</option>
             </select>
           </div>
 
-          {/* Borrow Amount Field (only show if "borrow" selected) */}
           {formData.paymentType === "borrow" && (
             <div className="form-group">
               <label>Borrow Amount (₹) (उधार राशि)</label>
@@ -170,32 +164,33 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
                 name="borrowAmount"
                 value={formData.borrowAmount}
                 onChange={handleChange}
-                placeholder="उधार ली गई राशि दर्ज करें (पूरी राशि के लिए खाली छोड़ दें)"
+                placeholder="उधार राशि (खाली = पूर्ण राशि)"
               />
             </div>
           )}
 
-          <div className="form-group">
-            <label>Supplier (देने वाला)</label>
-            <input
-              type="text"
-              name="supplier"
-              value={formData.supplier}
-              onChange={handleChange}
-              placeholder="Enter supplier name"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Image/Receipt</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            {formData.image && (
-              <img
-                src={formData.image}
-                alt="Preview"
-                style={{ width: 100, marginTop: 10 }}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Supplier Name (देने वाला)</label>
+              <input
+                type="text"
+                name="supplier"
+                value={formData.supplier}
+                onChange={handleChange}
+                placeholder="Enter supplier name"
               />
-            )}
+            </div>
+            <div className="form-group">
+              <label>Supplier Phone (फ़ोन)</label>
+              <input
+                type="tel"
+                name="supplierPhone"
+                value={formData.supplierPhone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+                maxLength="10"
+              />
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}
