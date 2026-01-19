@@ -146,7 +146,7 @@ export const getSales = async (req, res) => {
           paymentType: true,
           borrowAmount: true,
           customerName: true,
-          customerPhone: true,
+          customerContact: true,
           item: { select: { name: true } },
           user: { select: { name: true } },
         },
