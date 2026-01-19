@@ -8,9 +8,6 @@ export const getProfitLossSummary = async (req, res) => {
     const { startDate, endDate } = req.query;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
     if (user.role !== "admin") {
       return res.status(403).json({ error: "Unauthorized" });
     }
@@ -109,7 +106,6 @@ export const getProfitLossSummary = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Error in getProfitLossSummary:", error);
     res.status(500).json({ error: error.message });
   }
 };
