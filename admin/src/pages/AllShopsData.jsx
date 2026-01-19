@@ -227,13 +227,13 @@ const totalPurchaseQty = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0
                 <tbody>
                   {paginatedSales.map((sale) => (
                     <tr key={sale.id}>
-                      <td>{new Date(sale.saleDate).toLocaleDateString()}</td>
+                      <td>{sale.saleDateIST ? new Date(sale.saleDateIST).toLocaleDateString() : (sale.saleDate ? new Date(sale.saleDate).toLocaleDateString() : "-")}</td>
                       <td>{sale.item?.name || "N/A"}</td>
                       <td>{sale.customerName || "-"}</td>
                       <td>{sale.user?.name || "-"}</td>
                       <td>{sale.quantity}</td>
-                      <td>₹{sale.unitPrice.toLocaleString()}</td>
-                      <td>₹{sale.totalAmount.toLocaleString()}</td>
+                      <td>₹{Number(sale.unitPrice || 0).toLocaleString()}</td>
+                      <td>₹{Number(sale.totalAmount || 0).toLocaleString()}</td>
                       <td>{sale.paymentType || "paid"}</td>
                       <td>
                         {sale.paymentType === "borrow" && sale.borrowAmount
@@ -303,13 +303,13 @@ const totalPurchaseQty = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0
                 <tbody>
                   {paginatedPurchases.map((purchase) => (
                     <tr key={purchase.id}>
-                      <td>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
+                      <td>{purchase.purchaseDateIST ? new Date(purchase.purchaseDateIST).toLocaleDateString() : (purchase.purchaseDate ? new Date(purchase.purchaseDate).toLocaleDateString() : "-")}</td>
                       <td>{purchase.item?.name || "N/A"}</td>
                       <td>{purchase.supplierName || "-"}</td>
                       <td>{purchase.user?.name || "-"}</td>
                       <td>{purchase.quantity}</td>
-                      <td>₹{purchase.unitPrice.toLocaleString()}</td>
-                      <td>₹{purchase.totalAmount.toLocaleString()}</td>
+                      <td>₹{Number(purchase.unitPrice || 0).toLocaleString()}</td>
+                      <td>₹{Number(purchase.totalAmount || 0).toLocaleString()}</td>
                       <td>{purchase.paymentType || "paid"}</td>
                       <td>
                         {purchase.paymentType === "borrow" && purchase.borrowAmount
