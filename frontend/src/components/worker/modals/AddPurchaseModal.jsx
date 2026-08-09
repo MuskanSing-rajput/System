@@ -1,9 +1,11 @@
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { X } from "lucide-react"
 import api from "../../../utils/api"
 import "./AddPurchaseModal.css"
 
-export default function AddPurchaseModal({ onClose,onSuccess }) {
+export default function AddPurchaseModal({ onClose, onSuccess }) {
+  const [items, setItems] = useState([])
+  const [selectedItemId, setSelectedItemId] = useState("")
   const [formData, setFormData] = useState({
     itemName: "",
     quantity: "",
@@ -18,6 +20,46 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchItems()
+  }, [])
+
+  const fetchItems = async () => {
+    try {
+      const { data } = await api.get("/items")
+      const itemsList = Array.isArray(data) ? data : []
+      setItems(itemsList)
+      if (itemsList.length > 0) {
+        // Default to first item
+        setSelectedItemId(itemsList[0].id)
+        setFormData((prev) => ({
+          ...prev,
+          itemName: itemsList[0].name,
+          unit: itemsList[0].unit || "kg",
+        }))
+      }
+    } catch (err) {
+      console.error("Error fetching items:", err)
+    }
+  }
+
+  const handleItemSelect = (e) => {
+    const val = e.target.value
+    setSelectedItemId(val)
+    if (val === "new") {
+      setFormData((prev) => ({ ...prev, itemName: "" }))
+    } else {
+      const found = items.find((i) => i.id === val)
+      if (found) {
+        setFormData((prev) => ({
+          ...prev,
+          itemName: found.name,
+          unit: found.unit || "kg",
+        }))
+      }
+    }
+  }
 
   // Calculate total amount
   const totalAmount = useMemo(() => {
@@ -65,7 +107,8 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
             : total
           : 0
 
-      await api.post("/purchases", {
+      const payload = {
+        itemId: selectedItemId !== "new" ? selectedItemId : undefined,
         itemName: formData.itemName,
         unit: formData.unit,
         quantity: baseQuantity,
@@ -75,7 +118,9 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
         image: formData.image,
         paymentType: formData.paymentType,
         borrowAmount: finalBorrowAmount,
-      })
+      }
+
+      await api.post("/purchases", payload)
       if (onSuccess) onSuccess()
       onClose()
     } catch (err) {
@@ -95,16 +140,34 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label>Item Name * (माल)</label>
-            <input
-              type="text"
-              name="itemName"
-              value={formData.itemName}
-              onChange={handleChange}
-              placeholder="Enter item name"
+            <label>Select Existing Item (मौजूदा माल चुनें) *</label>
+            <select
+              value={selectedItemId}
+              onChange={handleItemSelect}
               required
-            />
+            >
+              {items.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} (Stock: {item.stock} {item.unit})
+                </option>
+              ))}
+              <option value="new">+ Add New Item (नया माल जोड़ें)</option>
+            </select>
           </div>
+
+          {selectedItemId === "new" && (
+            <div className="form-group">
+              <label>New Item Name (नए माल का नाम) *</label>
+              <input
+                type="text"
+                name="itemName"
+                value={formData.itemName}
+                onChange={handleChange}
+                placeholder="Enter new item name"
+                required
+              />
+            </div>
+          )}
 
           <div className="form-row">
             <div className="form-group">
@@ -124,6 +187,9 @@ export default function AddPurchaseModal({ onClose,onSuccess }) {
               <label>Unit (इकाई)</label>
               <select name="unit" value={formData.unit} onChange={handleChange}>
                 <option value="kg">kg</option>
+                <option value="gram">gram</option>
+                <option value="liter">liter</option>
+                <option value="piece">piece</option>
               </select>
             </div>
           </div>

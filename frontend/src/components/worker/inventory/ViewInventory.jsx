@@ -67,10 +67,8 @@ export default function ViewInventory() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Category</th>
                   <th>Stock</th>
                   <th>Unit</th>
-                  {/* <th>Min Stock</th> */}
                   <th>Status</th>
                 </tr>
               </thead>
@@ -78,12 +76,10 @@ export default function ViewInventory() {
                 {items.slice((page - 1) * pageSize, page * pageSize).map((item) => (
                   <tr key={item.id}>
                     <td><strong>{item.name}</strong></td>
-                    <td>{item.category}</td>
                     <td className={item.stock < item.minStock ? "low-stock" : ""}>
                       <strong>{item.stock}</strong>
                     </td>
                     <td>{item.unit}</td>
-                    {/* <td>{item.minStock}</td> */}
                     <td>
                       {item.stock < item.minStock ? (
                         <span style={{ color: '#ef4444', fontWeight: 600 }}>⚠️ Low Stock</span>

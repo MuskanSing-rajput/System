@@ -7,7 +7,6 @@ export default function AddItemModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    category: "",
     unit: "kg",
     stock: 0,
     minStock: 0,
@@ -42,8 +41,11 @@ export default function AddItemModal({ onClose, onSuccess }) {
     setError("")
 
     try {
-      await api.post("/items", formData)
-      onSuccess()
+      await api.post("/items", {
+        ...formData,
+        category: "general", // default category fallback for database schema
+      })
+      if (onSuccess) onSuccess()
       onClose()
     } catch (err) {
       setError(err.response?.data?.error || "Network error. Please try again.")
@@ -63,44 +65,59 @@ export default function AddItemModal({ onClose, onSuccess }) {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Item Name (माल का नाम)"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <textarea 
-            name="description" 
-            placeholder="Description (विवरण)" 
-            value={formData.description} 
-            onChange={handleChange} 
-          />
-          <input
-            type="text"
-            name="category"
-            placeholder="Category (श्रेणी)"
-            value={formData.category}
-            onChange={handleChange}
-            required
-          />
-          <select name="unit" value={formData.unit} onChange={handleChange}>
-            <option value="kg">Kilogram (kg)</option>
-            <option value="gram">Gram (g)</option>
-            <option value="liter">Liter (L)</option>
-            <option value="piece">Piece</option>
-            <option value="box">Box</option>
-          </select>
-          <input
-            type="number"
-            name="stock"
-            placeholder="Initial Stock"
-            value={formData.stock}
-            onChange={handleChange}
-            step="any"
-          />
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <div className="form-group">
+            <label>Item Name (माल का नाम) *</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="e.g. Loha, Sariya, Steel..."
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Description (विवरण)</label>
+            <textarea 
+              name="description" 
+              placeholder="Item description (optional)" 
+              value={formData.description} 
+              onChange={handleChange} 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Unit (इकाई)</label>
+            <select name="unit" value={formData.unit} onChange={handleChange}>
+              <option value="kg">Kilogram (kg)</option>
+              <option value="gram">Gram (g)</option>
+              <option value="liter">Liter (L)</option>
+              <option value="piece">Piece</option>
+              <option value="box">Box</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label style={{ fontWeight: 600, color: "#1e293b", marginBottom: 6, display: "block" }}>
+              Stock / Opening Quantity (स्टॉक / मात्रा) *
+            </label>
+            <input
+              type="number"
+              name="stock"
+              placeholder="Enter opening stock quantity (उदा. 50)"
+              value={formData.stock}
+              onChange={handleChange}
+              step="any"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Image (तस्वीर)</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+          </div>
+
           <div className="modal-actions">
             <button type="button" className="btn-cancel" onClick={onClose}>
               Cancel

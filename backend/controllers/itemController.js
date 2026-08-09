@@ -7,8 +7,14 @@ export const createItem = async (req, res) => {
     const parsedMinStock = parseFloat(minStock) || 0
     const parsedStock = parseFloat(stock) || 0
 
-    // check if item with same name exists for this user
-    const existing = await prisma.item.findFirst({ where: { userId: req.userId, name } })
+    const cleanName = name ? name.trim() : "";
+    const existing = await prisma.item.findFirst({
+      where: {
+        userId: req.userId,
+        name: { equals: cleanName, mode: "insensitive" },
+      },
+    })
+
 
     if (existing) {
       // update existing item's stock by adding provided stock, and update other fields

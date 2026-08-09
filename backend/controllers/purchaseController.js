@@ -36,8 +36,12 @@ export const createPurchase = async (req, res) => {
     let resolvedItemId = itemId;
 
     if (!resolvedItemId && itemName) {
+      const cleanName = itemName.trim();
       const existing = await prisma.item.findFirst({
-        where: { userId, name: itemName },
+        where: {
+          userId,
+          name: { equals: cleanName, mode: "insensitive" },
+        },
       });
 
       resolvedItemId = existing
@@ -46,7 +50,7 @@ export const createPurchase = async (req, res) => {
             await prisma.item.create({
               data: {
                 userId,
-                name: itemName,
+                name: cleanName,
                 unit,
                 category: "general",
                 stock: 0,
@@ -54,6 +58,7 @@ export const createPurchase = async (req, res) => {
             })
           ).id;
     }
+
 
     const qty = parseFloat(quantity);
     const price = parseFloat(unitPrice);
