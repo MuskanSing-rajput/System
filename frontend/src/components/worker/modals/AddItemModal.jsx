@@ -6,7 +6,6 @@ import "./AddItemModal.css"
 export default function AddItemModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
     unit: "kg",
     stock: 0,
     minStock: 0,
@@ -44,6 +43,7 @@ export default function AddItemModal({ onClose, onSuccess }) {
       await api.post("/items", {
         ...formData,
         category: "general", // default category fallback for database schema
+        description: "",
       })
       if (onSuccess) onSuccess()
       onClose()
@@ -74,16 +74,6 @@ export default function AddItemModal({ onClose, onSuccess }) {
               value={formData.name}
               onChange={handleChange}
               required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Description (विवरण)</label>
-            <textarea 
-              name="description" 
-              placeholder="Item description (optional)" 
-              value={formData.description} 
-              onChange={handleChange} 
             />
           </div>
 
