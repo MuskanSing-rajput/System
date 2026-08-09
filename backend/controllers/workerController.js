@@ -1,4 +1,5 @@
-import { prisma } from "../index.js"
+import { prisma } from "../config/prisma.js"
+
 import bcrypt from "bcryptjs"
 
 // Get all workers for admin
@@ -292,10 +293,39 @@ export const deleteWorker = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized" })
     }
 
-    await prisma.worker.delete({ where: { id: workerId } })
+    // Handle virtual worker IDs (virtual-USER_ID)
+    if (workerId.startsWith("virtual-")) {
+      const userWorkerId = workerId.replace("virtual-", "")
+      const targetUser = await prisma.user.findUnique({ where: { id: userWorkerId } })
+      if (targetUser) {
+        await prisma.user.delete({ where: { id: userWorkerId } })
+      }
+      return res.json({ message: "Worker deleted successfully" })
+    }
+
+    // Regular worker delete
+    const worker = await prisma.worker.findUnique({
+      where: { id: workerId },
+      select: { id: true, userId: true },
+    })
+
+    if (!worker) {
+      // Fallback check if workerId was passed as a User ID
+      const userWorker = await prisma.user.findUnique({ where: { id: workerId } })
+      if (userWorker) {
+        await prisma.user.delete({ where: { id: workerId } })
+        return res.json({ message: "Worker deleted successfully" })
+      }
+      return res.status(404).json({ error: "Worker not found" })
+    }
+
+    // Delete user account (cascades to worker record and related items)
+    await prisma.user.delete({ where: { id: worker.userId } })
 
     res.json({ message: "Worker deleted successfully" })
   } catch (error) {
+    console.error("🔥 Error in deleteWorker:", error)
     res.status(500).json({ error: error.message })
   }
 }
+
