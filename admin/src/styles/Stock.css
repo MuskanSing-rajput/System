@@ -1,0 +1,12 @@
+.stock-page{padding:24px;background:#f8fafc;min-height:100vh}
+.page-header{margin-bottom:18px}
+.page-header h1{color:#1e293b;margin:0}
+.filters{background:#fff;padding:16px;border-radius:12px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.filters label{display:flex;align-items:center;gap:12px;color:#475569}
+.filters select{padding:10px;border:1px solid #e2e8f0;border-radius:8px}
+.table-responsive{overflow-x:auto;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:20px}
+.stock-table{width:100%;border-collapse:collapse}
+.stock-table thead{background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);color:#fff}
+.stock-table th{padding:12px;text-align:left}
+.stock-table td{padding:12px;color:#475569;border-bottom:1px solid #f1f5f9}
+@media(max-width:768px){.filters{padding:12px}.stock-table th,.stock-table td{padding:8px;font-size:13px}}

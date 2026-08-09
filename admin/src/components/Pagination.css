@@ -1,0 +1,20 @@
+.admin-pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.admin-pagination .page-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: white;
+  color: #0e7490;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-pagination .page-btn:disabled { opacity: 0.5; cursor: not-allowed }
+.admin-pagination .page-btn.active { background: #0e7490; color: white; border-color: #0e7490 }
+.admin-pagination .page-btn.dots { background: transparent; border: none; cursor: default }

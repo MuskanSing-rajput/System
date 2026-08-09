@@ -1,0 +1,64 @@
+.inventory-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.tab-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.tab-btn.active {
+  border-color: #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-buttons {
+    gap: 8px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 14px;
+    font-size: 13px;
+    text-align: center;
+  }
+}
