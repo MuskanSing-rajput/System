@@ -78,16 +78,37 @@ button {
     font-size: 15px;
   }
 
-  button, select, input[type="text"], input[type="number"], input[type="date"] {
+  select, input[type="text"], input[type="number"], input[type="date"], input[type="password"] {
     width: 100%;
     max-width: 100%;
   }
 
-  .btn-primary, .btn-secondary {
+  .btn-primary, .btn-secondary, form > button[type="submit"] {
     width: 100%;
     justify-content: center;
     padding: 12px 16px;
   }
+}
+
+/* Prevent icon buttons, hamburger menus, and close buttons from stretching */
+.menu-toggle,
+.menu-btn,
+.close-btn,
+.close-btn2,
+.password-toggle,
+.back-btn,
+.btn-icon,
+.icon-btn,
+.btn-edit,
+.btn-delete,
+.edit-btn,
+.delete-btn,
+.btn-receive,
+.pagination button,
+.page-btn,
+button.icon-only {
+  width: auto !important;
+  max-width: fit-content !important;
 }
 
 /* Custom Scrollbar for responsive tables */

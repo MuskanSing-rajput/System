@@ -151,8 +151,36 @@ select {
     font-size: clamp(1.1rem, 3.5vw, 1.3rem) !important;
   }
 
-  button, select, input[type="text"], input[type="number"], input[type="date"] {
+  select, input[type="text"], input[type="number"], input[type="date"], input[type="password"] {
     width: 100%;
     max-width: 100%;
   }
+
+  form > button[type="submit"],
+  .btn-submit,
+  .btn-full-mobile {
+    width: 100%;
+  }
+}
+
+/* Prevent icon buttons, hamburger menus, and close buttons from stretching */
+.menu-btn,
+.menu-toggle,
+.close-btn,
+.close-btn2,
+.password-toggle,
+.back-btn,
+.btn-icon,
+.icon-btn,
+.btn-edit,
+.btn-delete,
+.edit-btn,
+.delete-btn,
+.btn-receive,
+.pagination button,
+.page-btn,
+button.icon-only,
+button.btn-pay {
+  width: auto !important;
+  max-width: fit-content !important;
 }

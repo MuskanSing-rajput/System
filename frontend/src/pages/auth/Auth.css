@@ -102,13 +102,14 @@
   width: 100%;
 }
 
-.password-field-wrapper input {
-  padding-right: 50px;
+.password-field-wrapper input,
+.auth-card .password-field-wrapper input {
+  padding-right: 48px;
 }
 
 .password-toggle {
   position: absolute;
-  right: 14px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
@@ -121,6 +122,7 @@
   justify-content: center;
   transition: all 0.2s;
   border-radius: 6px;
+  z-index: 2;
 }
 
 .password-toggle:hover {
@@ -215,9 +217,17 @@
 
   .auth-card input,
   .auth-card select,
-  .auth-card button {
+  .auth-card button[type="submit"] {
     padding: 12px 14px;
     font-size: 14px;
+  }
+
+  .auth-card .password-field-wrapper input {
+    padding-right: 48px;
+  }
+
+  .password-toggle {
+    padding: 6px;
   }
 }
 

@@ -94,17 +94,28 @@
   .login-card h1 {
     font-size: 24px;
   }
-}
 
+  .password-field-wrapper input {
+    padding-right: 48px;
+  }
+
+  .password-toggle {
+    padding: 6px;
+  }
+}
 
 .password-field-wrapper {
   position: relative;
   width: 100%;
 }
 
+.password-field-wrapper input {
+  padding-right: 48px;
+}
+
 .password-toggle {
   position: absolute;
-  right: 14px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
@@ -117,6 +128,7 @@
   justify-content: center;
   transition: all 0.2s;
   border-radius: 6px;
+  z-index: 2;
 }
 
 .password-toggle:hover {
