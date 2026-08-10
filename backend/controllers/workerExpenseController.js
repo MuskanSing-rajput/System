@@ -31,7 +31,7 @@ export const addWorkerExpense = async (req, res) => {
     });
 
     if (funds.length === 0) {
-      return res.status(400).json({ error: "No fund found for this shop" });
+      return res.status(400).json({ error: "इस दुकान के पास खर्च के लिए पैसे/फंड नहीं हैं (No fund available for this shop)" });
     }
 
     // Calculate total remaining
@@ -41,7 +41,7 @@ export const addWorkerExpense = async (req, res) => {
     );
 
     if (totalRemaining < amount) {
-      return res.status(400).json({ error: "Insufficient fund balance" });
+      return res.status(400).json({ error: "खर्च के लिए पर्याप्त पैसे/फंड नहीं हैं (Insufficient fund balance)" });
     }
 
     // Deduct amount from latest fund (FIFO)

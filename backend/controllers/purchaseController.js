@@ -71,7 +71,7 @@ export const createPurchase = async (req, res) => {
     });
 
     if (shopFunds.length === 0)
-      return res.status(400).json({ error: "No fund available for this shop" });
+      return res.status(400).json({ error: "इस दुकान में माल खरीदने के लिए पैसे/फंड नहीं हैं (No fund available for this shop)" });
 
     // ✔ Calculate total remaining balance
     const totalRemaining = shopFunds.reduce(
@@ -82,7 +82,7 @@ export const createPurchase = async (req, res) => {
     // ✔ Check insufficient funds
     if (paymentType !== "borrow" && totalRemaining < totalAmount) {
       return res.status(400).json({
-        error: `Insufficient funds. Available: ₹${totalRemaining}, Required: ₹${totalAmount}`,
+        error: `माल खरीदने के लिए पर्याप्त पैसे/फंड नहीं हैं (उपलब्ध: ₹${totalRemaining}, आवश्यक: ₹${totalAmount})`,
       });
     }
 
@@ -365,14 +365,14 @@ export const payBorrowAmount = async (req, res) => {
     });
 
     if (!shopFund) {
-      return res.status(400).json({ error: "No fund available for this shop" });
+      return res.status(400).json({ error: "इस दुकान में माल खरीदने के लिए पैसे/फंड नहीं हैं (No fund available for this shop)" });
     }
 
     if (shopFund.remainingAmount < amount) {
       return res
         .status(400)
         .json({
-          error: `Insufficient funds. Available ₹${shopFund.remainingAmount}`,
+          error: `माल खरीदने के लिए पर्याप्त पैसे/फंड नहीं हैं (उपलब्ध: ₹${shopFund.remainingAmount})`,
         });
     }
 

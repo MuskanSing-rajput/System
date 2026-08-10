@@ -77,11 +77,12 @@
 .error-message {
   background: #fef2f2;
   color: #dc2626;
-  padding: 12px 16px;
-  margin: 16px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 8px 12px;
+  margin: 8px 16px 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
   border: 1px solid #fecaca;
+  text-align: center;
 }
 
 .modal-content form {

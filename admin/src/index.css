@@ -94,12 +94,11 @@ button {
   .workers-header,
   .expenses-header,
   .attendance-header {
-    padding-right: 48px !important;
+    padding-right: 60px !important;
   }
 }
 
 /* Prevent icon buttons, hamburger menus, header action buttons, and close buttons from stretching */
-.menu-toggle,
 .menu-btn,
 .close-btn,
 .close-btn2,
