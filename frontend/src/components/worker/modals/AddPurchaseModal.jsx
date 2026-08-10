@@ -5,7 +5,7 @@ import "./AddPurchaseModal.css"
 
 export default function AddPurchaseModal({ onClose, onSuccess }) {
   const [items, setItems] = useState([])
-  const [selectedItemId, setSelectedItemId] = useState("")
+  const [selectedItemId, setSelectedItemId] = useState("new")
   const [formData, setFormData] = useState({
     itemName: "",
     quantity: "",
@@ -31,26 +31,32 @@ export default function AddPurchaseModal({ onClose, onSuccess }) {
       const itemsList = Array.isArray(data) ? data : []
       setItems(itemsList)
       if (itemsList.length > 0) {
-        // Default to first item
         setSelectedItemId(itemsList[0].id)
         setFormData((prev) => ({
           ...prev,
           itemName: itemsList[0].name,
           unit: itemsList[0].unit || "kg",
         }))
+      } else {
+        setSelectedItemId("new")
+        setFormData((prev) => ({
+          ...prev,
+          itemName: "",
+        }))
       }
     } catch (err) {
       console.error("Error fetching items:", err)
+      setSelectedItemId("new")
     }
   }
 
   const handleItemSelect = (e) => {
     const val = e.target.value
     setSelectedItemId(val)
-    if (val === "new") {
+    if (val === "new" || !val) {
       setFormData((prev) => ({ ...prev, itemName: "" }))
     } else {
-      const found = items.find((i) => i.id === val)
+      const found = items.find((i) => String(i.id) === String(val))
       if (found) {
         setFormData((prev) => ({
           ...prev,
@@ -67,6 +73,8 @@ export default function AddPurchaseModal({ onClose, onSuccess }) {
     const price = parseFloat(formData.unitPrice) || 0
     return (qty * price).toFixed(2)
   }, [formData.quantity, formData.unitPrice])
+
+  const isNewItem = selectedItemId === "new" || !selectedItemId || items.length === 0
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -93,6 +101,10 @@ export default function AddPurchaseModal({ onClose, onSuccess }) {
     setError("")
 
     try {
+      if (isNewItem && !formData.itemName.trim()) {
+        throw new Error("Please enter new item name.")
+      }
+
       const baseQuantity =
         formData.unit === "gram"
           ? parseFloat(formData.quantity) / 1000
@@ -108,7 +120,7 @@ export default function AddPurchaseModal({ onClose, onSuccess }) {
           : 0
 
       const payload = {
-        itemId: selectedItemId !== "new" ? selectedItemId : undefined,
+        itemId: !isNewItem ? selectedItemId : undefined,
         itemName: formData.itemName,
         unit: formData.unit,
         quantity: baseQuantity,
@@ -146,16 +158,16 @@ export default function AddPurchaseModal({ onClose, onSuccess }) {
               onChange={handleItemSelect}
               required
             >
+              <option value="new">+ Add New Item (नया माल जोड़ें)</option>
               {items.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name} (Stock: {item.stock} {item.unit})
                 </option>
               ))}
-              <option value="new">+ Add New Item (नया माल जोड़ें)</option>
             </select>
           </div>
 
-          {selectedItemId === "new" && (
+          {isNewItem && (
             <div className="form-group">
               <label>New Item Name (नए माल का नाम) *</label>
               <input
