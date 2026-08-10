@@ -117,8 +117,36 @@
 }
 
 @media (max-width: 768px) {
+  .attendance-container {
+    padding: 12px;
+  }
+
+  .attendance-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .attendance-header h1,
+  .attendance-header h2 {
+    font-size: 20px;
+    margin: 0;
+  }
+
+  .attendance-header .btn-primary,
+  .attendance-filters .btn-primary {
+    width: auto !important;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
   .attendance-filters {
     flex-direction: column;
+    gap: 10px;
   }
 
   .attendance-table {

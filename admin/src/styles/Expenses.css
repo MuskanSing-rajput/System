@@ -108,8 +108,35 @@
 }
 
 @media (max-width: 768px) {
+  .expenses-container {
+    padding: 12px;
+  }
+
+  .expenses-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .expenses-header h1,
+  .expenses-header h2 {
+    font-size: 20px;
+    margin: 0;
+  }
+
+  .expenses-header .btn-primary {
+    width: auto !important;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
   .date-filters {
     flex-direction: column;
+    gap: 10px;
   }
 
   .expenses-table {

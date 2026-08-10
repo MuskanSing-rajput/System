@@ -138,12 +138,52 @@
 }
 
 @media (max-width: 768px) {
+  .workers-container {
+    padding: 12px;
+  }
+
+  .workers-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .workers-header h1,
+  .workers-header h2 {
+    font-size: 20px;
+    margin: 0;
+  }
+
+  .workers-header .btn-primary {
+    width: auto !important;
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
   .workers-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .worker-card {
+    padding: 16px;
   }
 
   .worker-form {
     grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 6px;
   }
 }
 .no-data-message {
