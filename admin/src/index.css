@@ -89,6 +89,13 @@ button {
     justify-content: center;
     padding: 12px 16px;
   }
+
+  /* Reserve space for top-right menu-toggle icon on mobile */
+  .workers-header,
+  .expenses-header,
+  .attendance-header {
+    padding-right: 48px !important;
+  }
 }
 
 /* Prevent icon buttons, hamburger menus, header action buttons, and close buttons from stretching */

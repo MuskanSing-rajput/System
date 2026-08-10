@@ -139,7 +139,7 @@ export default function Attendance() {
           }}
           disabled={!selectedWorker && !showForm}
         >
-          {showForm ? "Cancel" : "Add Attendance"}
+          {showForm ? "Cancel" : "+ Add"}
         </button>
       </div>
 

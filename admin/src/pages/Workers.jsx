@@ -123,7 +123,7 @@ export default function Workers() {
             })
           }}
         >
-          {showForm ? "Cancel" : "Add Worker"}
+          {showForm ? "Cancel" : "+ Add"}
         </button>
       </div>
 

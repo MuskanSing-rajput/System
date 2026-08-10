@@ -107,7 +107,7 @@ export default function Expenses() {
             })
           }}
         >
-          {showForm ? "Cancel" : "Add Expense"}
+          {showForm ? "Cancel" : "+ Add"}
         </button>
       </div>
 
