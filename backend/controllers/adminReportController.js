@@ -19,69 +19,101 @@ export const getProfitLossSummary = async (req, res) => {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
 
-    const [sales, purchases, expenses, workerExpenses, saleBorrows, purchaseBorrows, funds] =
-      await Promise.all([
-        prisma.sale.findMany({
-          where: { saleDate: { gte: start, lte: end } },
-          include: { item: true, user: true },
-        }),
-        prisma.purchase.findMany({
-          where: { purchaseDate: { gte: start, lte: end } },
-          include: { item: true, user: true },
-        }),
-        prisma.expense.findMany({
-          where: { date: { gte: start, lte: end } },
-        }),
-        prisma.workerExpense.findMany({
-          where: { date: { gte: start, lte: end } },
-          include: { worker: true },
-        }),
-        prisma.sale.findMany({
-          where: { saleDate: { gte: start, lte: end }, paymentType: "borrow" },
-        }),
-        prisma.purchase.findMany({
-          where: { purchaseDate: { gte: start, lte: end }, paymentType: "borrow" },
-        }),
-        prisma.workerFund.findMany({
-          where: { createdAt: { gte: start, lte: end } },
-          include: { owner: true },
-          orderBy: { createdAt: "desc" },
-        }),
-      ]);
+    const [
+      salesAgg,
+      purchasesAgg,
+      expensesAgg,
+      saleBorrowsAgg,
+      purchaseBorrowsAgg,
+      funds,
+      workerExpenses,
+    ] = await Promise.all([
+      prisma.sale.aggregate({
+        where: { saleDate: { gte: start, lte: end } },
+        _sum: { totalAmount: true, quantity: true },
+        _count: { id: true },
+      }),
+      prisma.purchase.aggregate({
+        where: { purchaseDate: { gte: start, lte: end } },
+        _sum: { totalAmount: true, quantity: true },
+        _count: { id: true },
+      }),
+      prisma.expense.aggregate({
+        where: { date: { gte: start, lte: end } },
+        _sum: { amount: true },
+        _count: { id: true },
+      }),
+      prisma.sale.aggregate({
+        where: { saleDate: { gte: start, lte: end }, paymentType: "borrow" },
+        _sum: { borrowAmount: true },
+        _count: { id: true },
+      }),
+      prisma.purchase.aggregate({
+        where: { purchaseDate: { gte: start, lte: end }, paymentType: "borrow" },
+        _sum: { borrowAmount: true },
+        _count: { id: true },
+      }),
+      prisma.workerFund.findMany({
+        where: { createdAt: { gte: start, lte: end } },
+        select: {
+          id: true,
+          shopId: true,
+          givenBy: true,
+          givenAmount: true,
+          remainingAmount: true,
+          createdAt: true,
+          owner: { select: { name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.workerExpense.findMany({
+        where: { date: { gte: start, lte: end } },
+        select: {
+          id: true,
+          title: true,
+          amount: true,
+          date: true,
+          worker: { select: { name: true } },
+        },
+        orderBy: { date: "desc" },
+      }),
+    ]);
 
-    // Totals
-    const totalSales = sales.reduce((sum, s) => sum + s.totalAmount, 0);
-    const totalPurchases = purchases.reduce((sum, p) => sum + p.totalAmount, 0);
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-    const totalWorkerExpenses = workerExpenses.reduce((sum, e) => sum + e.amount, 0);
+    // Totals via DB aggregations
+    const totalSales = salesAgg._sum.totalAmount || 0;
+    const totalSaleQuantity = salesAgg._sum.quantity || 0;
+    const salesCount = salesAgg._count.id || 0;
+
+    const totalPurchases = purchasesAgg._sum.totalAmount || 0;
+    const totalPurchaseQuantity = purchasesAgg._sum.quantity || 0;
+    const purchaseCount = purchasesAgg._count.id || 0;
+
+    const totalGeneralExpenses = expensesAgg._sum.amount || 0;
+    const totalWorkerExpenses = workerExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+    const totalExpenses = totalGeneralExpenses + totalWorkerExpenses;
+    const expenseCount = (expensesAgg._count.id || 0) + workerExpenses.length;
+
     const grossProfit = totalSales - totalPurchases;
-    const netProfit = grossProfit - (totalExpenses + totalWorkerExpenses);
+    const netProfit = grossProfit - totalExpenses;
 
-    // ✅ Total Quantities
-    const totalSaleQuantity = sales.reduce((sum, s) => sum + (s.quantity || 0), 0);
-    const totalPurchaseQuantity = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0);
-
-    const borrowSalesTotal = saleBorrows.reduce((sum, b) => sum + (b.borrowAmount || 0), 0);
-    const borrowPurchasesTotal = purchaseBorrows.reduce((sum, b) => sum + (b.borrowAmount || 0), 0);
-    const totalFundsGiven = funds.reduce((sum, f) => sum + f.givenAmount, 0);
+    const borrowSalesTotal = saleBorrowsAgg._sum.borrowAmount || 0;
+    const borrowPurchasesTotal = purchaseBorrowsAgg._sum.borrowAmount || 0;
+    const totalFundsGiven = funds.reduce((sum, f) => sum + (f.givenAmount || 0), 0);
 
     res.json({
       totalSales,
       totalPurchases,
-      totalExpenses: totalExpenses + totalWorkerExpenses,
+      totalExpenses,
       grossProfit,
       netProfit,
-      salesCount: sales.length,
-      purchaseCount: purchases.length,
-      expenseCount: expenses.length + workerExpenses.length,
-
-      // ✅ Add these new fields
+      salesCount,
+      purchaseCount,
+      expenseCount,
       totalSaleQuantity,
       totalPurchaseQuantity,
-
       borrowDetails: {
-        sales: { totalBorrow: borrowSalesTotal, count: saleBorrows.length },
-        purchases: { totalBorrow: borrowPurchasesTotal, count: purchaseBorrows.length },
+        sales: { totalBorrow: borrowSalesTotal, count: saleBorrowsAgg._count.id || 0 },
+        purchases: { totalBorrow: borrowPurchasesTotal, count: purchaseBorrowsAgg._count.id || 0 },
       },
       fundDetails: {
         totalFundsGiven,
@@ -137,7 +169,6 @@ export const getDailyReport = async (req, res) => {
       });
       userIds = users.map((u) => u.id);
       if (userIds.length === 0) {
-        // No users for this shop, return empty data
         return res.json({
           date,
           sales: [],
@@ -161,34 +192,41 @@ export const getDailyReport = async (req, res) => {
       return where;
     };
 
-    const [sales, purchases, expenses] = await Promise.all([
-      prisma.sale.findMany({
+    const [salesAgg, purchasesAgg, expensesAgg] = await Promise.all([
+      prisma.sale.aggregate({
         where: buildWhere("saleDate"),
-        include: { item: true, user: true },
+        _sum: { totalAmount: true, quantity: true },
+        _count: { id: true },
       }),
-      prisma.purchase.findMany({
+      prisma.purchase.aggregate({
         where: buildWhere("purchaseDate"),
-        include: { item: true, user: true },
+        _sum: { totalAmount: true, quantity: true },
+        _count: { id: true },
       }),
-      prisma.expense.findMany({
+      prisma.expense.aggregate({
         where: buildWhere("date"),
-        include: { user: true },
+        _sum: { amount: true },
+        _count: { id: true },
       }),
     ]);
 
-    const totalSales = sales.reduce((sum, s) => sum + s.totalAmount, 0);
-    const totalPurchases = purchases.reduce((sum, p) => sum + p.totalAmount, 0);
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-
-    // Add total quantities (weights)
-    const totalSaleQuantity = sales.reduce((sum, s) => sum + (s.quantity || 0), 0);
-    const totalPurchaseQuantity = purchases.reduce((sum, p) => sum + (p.quantity || 0), 0);
+    const totalSales = salesAgg._sum.totalAmount || 0;
+    const totalPurchases = purchasesAgg._sum.totalAmount || 0;
+    const totalExpenses = expensesAgg._sum.amount || 0;
+    const totalSaleQuantity = salesAgg._sum.quantity || 0;
+    const totalPurchaseQuantity = purchasesAgg._sum.quantity || 0;
+    const salesCount = salesAgg._count.id || 0;
+    const purchasesCount = purchasesAgg._count.id || 0;
+    const expensesCount = expensesAgg._count.id || 0;
 
     res.json({
       date,
-      sales,
-      purchases,
-      expenses,
+      sales: new Array(salesCount),
+      salesCount,
+      purchases: new Array(purchasesCount),
+      purchasesCount,
+      expenses: new Array(expensesCount),
+      expensesCount,
       totalSales,
       totalPurchases,
       totalExpenses,
@@ -198,6 +236,208 @@ export const getDailyReport = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error in getDailyReport:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Combined Dashboard Overview (Overall stats + all shop performance in one single request)
+export const getDashboardOverview = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { date, shopId = "all" } = req.query;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.role !== "admin") {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    let startDate, endDate;
+    if (date) {
+      startDate = new Date(date);
+      endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+    } else {
+      const todayStr = new Date().toISOString().split("T")[0];
+      startDate = new Date(todayStr);
+      endDate = new Date(todayStr);
+      endDate.setDate(endDate.getDate() + 1);
+    }
+
+    // 1. Fetch worker user to shop mappings
+    const workers = await prisma.user.findMany({
+      where: { role: "worker" },
+      select: { id: true, shopId: true },
+    });
+
+    const userToShopMap = {};
+    const knownShops = ["shop1", "shop2", "shop3", "shop4"];
+    const shopStats = {};
+
+    for (const s of knownShops) {
+      shopStats[s] = {
+        totalSales: 0,
+        totalPurchases: 0,
+        totalExpenses: 0,
+        profit: 0,
+        totalSaleQuantity: 0,
+        totalPurchaseQuantity: 0,
+        salesCount: 0,
+        purchasesCount: 0,
+        expensesCount: 0,
+      };
+    }
+
+    for (const w of workers) {
+      if (w.shopId) {
+        userToShopMap[w.id] = w.shopId;
+        if (!shopStats[w.shopId]) {
+          shopStats[w.shopId] = {
+            totalSales: 0,
+            totalPurchases: 0,
+            totalExpenses: 0,
+            profit: 0,
+            totalSaleQuantity: 0,
+            totalPurchaseQuantity: 0,
+            salesCount: 0,
+            purchasesCount: 0,
+            expensesCount: 0,
+          };
+        }
+      }
+    }
+
+    // 2. Fetch aggregated sales, purchases, and expenses grouped by userId in parallel
+    const [salesByWorker, purchasesByWorker, expensesByWorker] = await Promise.all([
+      prisma.sale.groupBy({
+        by: ["userId"],
+        where: { saleDate: { gte: startDate, lt: endDate } },
+        _sum: { totalAmount: true, quantity: true },
+        _count: { id: true },
+      }),
+      prisma.purchase.groupBy({
+        by: ["userId"],
+        where: { purchaseDate: { gte: startDate, lt: endDate } },
+        _sum: { totalAmount: true, quantity: true },
+        _count: { id: true },
+      }),
+      prisma.expense.groupBy({
+        by: ["userId"],
+        where: { date: { gte: startDate, lt: endDate } },
+        _sum: { amount: true },
+        _count: { id: true },
+      }),
+    ]);
+
+    // 3. Map group sums to each shop
+    for (const s of salesByWorker) {
+      const shop = userToShopMap[s.userId];
+      if (shop && shopStats[shop]) {
+        shopStats[shop].totalSales += s._sum.totalAmount || 0;
+        shopStats[shop].totalSaleQuantity += s._sum.quantity || 0;
+        shopStats[shop].salesCount += s._count.id || 0;
+      }
+    }
+
+    for (const p of purchasesByWorker) {
+      const shop = userToShopMap[p.userId];
+      if (shop && shopStats[shop]) {
+        shopStats[shop].totalPurchases += p._sum.totalAmount || 0;
+        shopStats[shop].totalPurchaseQuantity += p._sum.quantity || 0;
+        shopStats[shop].purchasesCount += p._count.id || 0;
+      }
+    }
+
+    for (const e of expensesByWorker) {
+      const shop = userToShopMap[e.userId];
+      if (shop && shopStats[shop]) {
+        shopStats[shop].totalExpenses += e._sum.amount || 0;
+        shopStats[shop].expensesCount += e._count.id || 0;
+      }
+    }
+
+    // Compute profit per shop
+    for (const s of Object.keys(shopStats)) {
+      shopStats[s].profit =
+        shopStats[s].totalSales -
+        shopStats[s].totalPurchases -
+        shopStats[s].totalExpenses;
+    }
+
+    // 4. Calculate stats for the selected shop (or overall)
+    let totalSales = 0;
+    let totalSaleQuantity = 0;
+    let salesCount = 0;
+
+    let totalPurchases = 0;
+    let totalPurchaseQuantity = 0;
+    let purchasesCount = 0;
+
+    let totalExpenses = 0;
+    let expensesCount = 0;
+
+    if (shopId && shopId !== "all") {
+      const selectedData = shopStats[shopId] || {
+        totalSales: 0,
+        totalPurchases: 0,
+        totalExpenses: 0,
+        profit: 0,
+        totalSaleQuantity: 0,
+        totalPurchaseQuantity: 0,
+        salesCount: 0,
+        purchasesCount: 0,
+        expensesCount: 0,
+      };
+      totalSales = selectedData.totalSales;
+      totalSaleQuantity = selectedData.totalSaleQuantity;
+      salesCount = selectedData.salesCount;
+
+      totalPurchases = selectedData.totalPurchases;
+      totalPurchaseQuantity = selectedData.totalPurchaseQuantity;
+      purchasesCount = selectedData.purchasesCount;
+
+      totalExpenses = selectedData.totalExpenses;
+      expensesCount = selectedData.expensesCount;
+    } else {
+      for (const s of salesByWorker) {
+        totalSales += s._sum.totalAmount || 0;
+        totalSaleQuantity += s._sum.quantity || 0;
+        salesCount += s._count.id || 0;
+      }
+      for (const p of purchasesByWorker) {
+        totalPurchases += p._sum.totalAmount || 0;
+        totalPurchaseQuantity += p._sum.quantity || 0;
+        purchasesCount += p._count.id || 0;
+      }
+      for (const e of expensesByWorker) {
+        totalExpenses += e._sum.amount || 0;
+        expensesCount += e._count.id || 0;
+      }
+    }
+
+    const profit = totalSales - totalPurchases - totalExpenses;
+
+    const stats = {
+      date: date || new Date().toISOString().split("T")[0],
+      totalSales,
+      totalSaleQuantity,
+      salesCount,
+      sales: new Array(salesCount),
+      totalPurchases,
+      totalPurchaseQuantity,
+      purchasesCount,
+      purchases: new Array(purchasesCount),
+      totalExpenses,
+      expensesCount,
+      expenses: new Array(expensesCount),
+      profit,
+    };
+
+    res.json({
+      stats,
+      shopStats,
+    });
+  } catch (error) {
+    console.error("❌ Error in getDashboardOverview:", error);
     res.status(500).json({ error: error.message });
   }
 };

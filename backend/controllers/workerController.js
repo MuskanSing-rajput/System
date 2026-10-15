@@ -14,13 +14,13 @@ export const getAllWorkers = async (req, res) => {
 
     const workerUsers = await prisma.user.findMany({
       where: { role: "worker" },
-      include: {
-        workers: {
-          include: {
-            attendances: { orderBy: { date: "desc" }, take: 30 },
-            salaries: { orderBy: { createdAt: "desc" }, take: 12 },
-          },
-        },
+      select: {
+        id: true,
+        name: true,
+        shopId: true,
+        createdAt: true,
+        updatedAt: true,
+        workers: true,
       },
       orderBy: { createdAt: "desc" },
     })
@@ -31,6 +31,8 @@ export const getAllWorkers = async (req, res) => {
         const worker = workerUser.workers[0]
         workers.push({
           ...worker,
+          attendances: [],
+          salaries: [],
           user: {
             shopId: workerUser.shopId,
             name: workerUser.name,

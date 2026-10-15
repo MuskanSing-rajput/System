@@ -9,57 +9,32 @@ export default function Dashboard({ user }) {
   const [selectedShop, setSelectedShop] = useState("all")
 
   useEffect(() => {
-    fetchStats()
-    if (selectedShop === "all") {
-      fetchShopWiseStats()
-    }
+    fetchDashboardData()
   }, [selectedShop])
 
-  const fetchStats = async () => {
+  const fetchDashboardData = async () => {
     try {
       setLoading(true)
       const today = new Date().toISOString().split("T")[0]
-      const response = await api.get("/admin-reports/daily", {
+      const response = await api.get("/admin-reports/dashboard-overview", {
         params: { date: today, shopId: selectedShop },
       })
-      setStats(response.data)
+
+      if (response.data?.stats) {
+        setStats(response.data.stats)
+        if (response.data.shopStats) {
+          setShopStats(response.data.shopStats)
+        }
+      } else {
+        // Fallback for compatibility
+        setStats(response.data)
+      }
     } catch (error) {
-      console.error("Error fetching stats:", error)
+      console.error("Error fetching dashboard data:", error)
     } finally {
       setLoading(false)
     }
   }
-
-const fetchShopWiseStats = async () => {
-  try {
-    const today = new Date().toISOString().split("T")[0]
-    const shops = ["shop1", "shop2", "shop3","shop4"]
-
-    // Run all requests in parallel
-    const responses = await Promise.all(
-      shops.map((shop) =>
-        api.get("/admin-reports/daily", { params: { date: today, shopId: shop } }).then((res) => ({
-          shop,
-          data: res.data,
-        })),
-      ),
-    )
-
-    const shopData = {}
-    for (const { shop, data } of responses) {
-      shopData[shop] = {
-        totalSales: data.totalSales,
-        totalPurchases: data.totalPurchases,
-        totalExpenses: data.totalExpenses,
-        profit: data.profit,
-      }
-    }
-
-    setShopStats(shopData)
-  } catch (error) {
-    console.error("Error fetching shop stats:", error)
-  }
-}
 
   if (loading) {
     return (
@@ -95,27 +70,27 @@ const fetchShopWiseStats = async () => {
         <div className="stats-grid">
           <div className="stat-card sales">
             <h3>Today's Sales</h3>
-            <p className="amount">₹{stats.totalSales.toLocaleString()}</p>
-            <p className="count">{stats.sales.length} transactions</p>
+            <p className="amount">₹{(stats.totalSales || 0).toLocaleString()}</p>
+            <p className="count">{stats.salesCount ?? stats.sales?.length ?? 0} transactions</p>
            <p className="stat-extra">Total Quantity: <b>{stats.totalSaleQuantity || 0} kg</b></p>
           </div>
 
           <div className="stat-card purchases">
             <h3>Today's Purchases</h3>
-            <p className="amount">₹{stats.totalPurchases.toLocaleString()}</p>
-            <p className="count">{stats.purchases.length} transactions</p>
+            <p className="amount">₹{(stats.totalPurchases || 0).toLocaleString()}</p>
+            <p className="count">{stats.purchasesCount ?? stats.purchases?.length ?? 0} transactions</p>
             <p className="stat-extra">Total Quantity: <b>{stats.totalPurchaseQuantity || 0} kg</b></p>
           </div>
 
           <div className="stat-card expenses">
             <h3>Today's Expenses</h3>
-            <p className="amount">₹{stats.totalExpenses.toLocaleString()}</p>
-            <p className="count">{stats.expenses.length} items</p>
+            <p className="amount">₹{(stats.totalExpenses || 0).toLocaleString()}</p>
+            <p className="count">{stats.expensesCount ?? stats.expenses?.length ?? 0} items</p>
           </div>
 
           <div className="stat-card profit">
             <h3>Today's Profit</h3>
-            <p className={`amount ${stats.profit >= 0 ? "positive" : "negative"}`}>₹{stats.profit.toLocaleString()}</p>
+            <p className={`amount ${(stats.profit || 0) >= 0 ? "positive" : "negative"}`}>₹{(stats.profit || 0).toLocaleString()}</p>
           </div>
         </div>
       )}

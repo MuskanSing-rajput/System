@@ -37,14 +37,22 @@ export const getStats = async (req, res) => {
           userId: req.userId,
           purchaseDate: { gte: startUTC, lte: endUTC },
         },
-        include: { item: true },
+        select: {
+          totalAmount: true,
+          quantity: true,
+          item: { select: { name: true } },
+        },
       }),
       prisma.sale.findMany({
         where: {
           userId: req.userId,
           saleDate: { gte: startUTC, lte: endUTC },
         },
-        include: { item: true },
+        select: {
+          totalAmount: true,
+          quantity: true,
+          item: { select: { name: true } },
+        },
       }),
     ]);
 

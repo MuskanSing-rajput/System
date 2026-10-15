@@ -61,17 +61,27 @@ export const getItems = async (req, res) => {
       if (shopId && shopId !== "all") {
         const shopUsers = await prisma.user.findMany({ where: { shopId, role: "worker" }, select: { id: true } });
         const userIds = shopUsers.map(u => u.id);
-        const items = await prisma.item.findMany({ where: { userId: { in: userIds } }, include: { user: true } });
+        const items = await prisma.item.findMany({
+          where: { userId: { in: userIds } },
+          include: { user: { select: { id: true, name: true, shopId: true } } },
+          orderBy: { name: "asc" }
+        });
         return res.json(items);
       }
 
       // admin without shop filter -> return all items with associated user
-      const items = await prisma.item.findMany({ include: { user: true } });
+      const items = await prisma.item.findMany({
+        include: { user: { select: { id: true, name: true, shopId: true } } },
+        orderBy: { name: "asc" }
+      });
       return res.json(items);
     }
 
-    // Worker logic — only their own items
-    const items = await prisma.item.findMany({ where: { userId: req.userId }, include: { purchases: true, sales: true } });
+    // Worker logic — only their own items (no heavy relations needed for inventory list)
+    const items = await prisma.item.findMany({
+      where: { userId: req.userId },
+      orderBy: { name: "asc" }
+    });
     res.json(items)
   } catch (error) {
     res.status(400).json({ error: error.message })
